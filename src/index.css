@@ -1,0 +1,236 @@
+/* index.css */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: white;
+  min-height: 100vh;
+}
+
+/* Navbar Styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* Logo Section */
+.logo-section {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.nav-logo {
+  height: 32px;
+  width: auto;
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  width: 240px;
+  min-width: 200px;
+  margin-right: 16px;
+}
+
+.search-icon {
+  color: white;
+  opacity: 0.8;
+  margin-right: 8px;
+}
+
+.search-input {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Navigation Links */
+.nav-links {
+  display: flex;
+  gap: 8px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  text-transform: uppercase;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.1),
+    0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.icon {
+  color: white;
+  opacity: 0.9;
+}
+
+/* Responsive Design - Desktop First Approach */
+
+/* Large screens (up to 1200px) */
+@media (max-width: 1200px) {
+  .nav-link span,
+  .nav-btn span {
+    display: none;
+  }
+
+  .nav-link,
+  .nav-btn {
+    padding: 8px;
+  }
+
+  .search-container {
+    width: 180px;
+  }
+}
+
+/* Medium and small screens (up to 768px) */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 8px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .logo-section {
+    margin-right: 4px;
+    flex: 0 0 auto;
+  }
+
+  .search-container {
+    order: 2;
+    width: calc(100% - 44px);
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+    gap: 4px;
+    padding: 0 4px;
+  }
+
+  .nav-buttons {
+    order: 4;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 4px;
+    gap: 4px;
+    padding: 0 4px;
+  }
+
+  /* Keep the icon-only style */
+  .nav-link span,
+  .nav-btn span {
+    display: none;
+  }
+
+  .nav-link,
+  .nav-btn {
+    padding: 6px;
+    flex: 0 1 auto;
+  }
+
+  .search-container {
+    padding: 6px 12px;
+  }
+
+  .nav-logo {
+    height: 28px;
+  }
+}
+
+/* Extra small screens (up to 480px) */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 6px;
+  }
+
+  .search-container {
+    padding: 4px 8px;
+  }
+
+  .nav-link,
+  .nav-btn {
+    padding: 4px;
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+}
