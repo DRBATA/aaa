@@ -235,28 +235,29 @@ body {
   }
 }
 
-/* Custom Scrollbar for Webkit Browsers (Chrome, Edge, Safari) */
+/* Custom Blue Scrollbar for Webkit Browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 8px; /* Adjust width */
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1); /* Transparent track */
+  background: rgba(0, 150, 255, 0.2); /* Light blue track */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3); /* Slightly visible thumb */
+  background: rgba(0, 150, 255, 0.8); /* Bright blue scrollbar */
   border-radius: 10px;
   transition: background 0.3s ease-in-out;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.6); /* More visible when hovered */
+  background: rgba(0, 150, 255, 1); /* Stronger blue on hover */
 }
 
 /* Scrollbar for Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  scrollbar-color: rgba(0, 150, 255, 0.8) rgba(0, 150, 255, 0.2);
 }
+
