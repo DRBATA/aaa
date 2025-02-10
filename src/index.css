@@ -234,3 +234,29 @@ body {
     height: 16px;
   }
 }
+
+/* Custom Scrollbar for Webkit Browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1); /* Transparent track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3); /* Slightly visible thumb */
+  border-radius: 10px;
+  transition: background 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6); /* More visible when hovered */
+}
+
+/* Scrollbar for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+}
