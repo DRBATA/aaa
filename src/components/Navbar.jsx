@@ -18,23 +18,33 @@ export default function Navbar() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installText, setInstallText] = useState("Install");
 
+  // Detect if the device is iOS (iPhone/iPad)
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+
   useEffect(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
+    // Handle PWA install prompt
+    const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setInstallText("Install");
-    });
+    };
 
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    // Listen for service worker updates
     navigator.serviceWorker?.addEventListener("controllerchange", () => {
       setInstallText("Update");
     });
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", (e) => {});
-      navigator.serviceWorker?.removeEventListener("controllerchange", () => {});
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
   }, []);
 
+  // Handle Install or Update Button Click
   const handleInstallClick = () => {
     if (installText === "Update") {
       window.location.reload(); // Refresh to get the latest PWA version
@@ -46,6 +56,10 @@ export default function Navbar() {
         }
         setDeferredPrompt(null);
       });
+    } else if (isIos()) {
+      alert(
+        "To install on iPhone/iPad: Open in Safari, tap 'Share', then 'Add to Home Screen'."
+      );
     }
   };
 
@@ -103,7 +117,11 @@ export default function Navbar() {
           <span>Export</span>
         </button>
 
-        <button className="nav-btn" onClick={handleInstallClick} aria-label="Install or Update EasyGP">
+        <button
+          className="nav-btn"
+          onClick={handleInstallClick}
+          aria-label="Install or Update EasyGP"
+        >
           <Download className="icon" size={18} aria-hidden="true" />
           <span>{installText}</span>
         </button>
