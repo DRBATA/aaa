@@ -1,43 +1,45 @@
+// Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  ImportIcon as FileImport,
-  FileOutputIcon as FileExport,
   Download,
-  Search,
-  Settings,
   Home,
   ClipboardList,
-  LineChart,
   PenToolIcon as Tool,
   Book,
+  Smartphone,
+  Grid2x2,
+  Apple,
 } from "lucide-react";
-import phiLogo from "/src/assets/phi-logo.png"; // ✅ Import logo correctly
+import phiLogo from "/src/assets/phi-logo.png";
 
 export default function Navbar() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [installText, setInstallText] = useState("Install");
 
   useEffect(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
+    const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setInstallText("Install");
-    });
+    };
 
-    navigator.serviceWorker?.addEventListener("controllerchange", () => {
+    const handleControllerChange = () => {
       setInstallText("Update");
-    });
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    navigator.serviceWorker?.addEventListener("controllerchange", handleControllerChange);
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", (e) => {});
-      navigator.serviceWorker?.removeEventListener("controllerchange", () => {});
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      navigator.serviceWorker?.removeEventListener("controllerchange", handleControllerChange);
     };
   }, []);
 
   const handleInstallClick = () => {
     if (installText === "Update") {
-      window.location.reload(); // Refresh to get the latest PWA version
+      window.location.reload();
     } else if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => {
@@ -49,6 +51,12 @@ export default function Navbar() {
     }
   };
 
+  const handleIOSInstallClick = () => {
+    alert(
+      "To install this app on your iOS device:\n\n1. Open Safari.\n2. Tap the Share icon.\n3. Select 'Add to Home Screen'."
+    );
+  };
+
   return (
     <nav className="navbar">
       {/* Logo Section */}
@@ -56,60 +64,52 @@ export default function Navbar() {
         <img src={phiLogo} alt="EasyGP Logo" className="nav-logo" />
       </div>
 
-      {/* Search Section */}
-      <div className="search-container" role="search">
-        <Search className="search-icon" size={18} aria-hidden="true" />
-        <input
-          type="search"
-          placeholder="Search..."
-          className="search-input"
-          aria-label="Search application"
-        />
-      </div>
+      {/* (Search section removed from Navbar) */}
 
-      {/* Main Navigation */}
+      {/* Updated Main Navigation Links */}
       <div className="nav-links">
         <Link to="/" className="nav-link">
           <Home className="icon" size={18} aria-hidden="true" />
           <span>Home</span>
         </Link>
-        <Link to="/symptom-log" className="nav-link">
-          <ClipboardList className="icon" size={18} aria-hidden="true" />
-          <span>Symptom Log</span>
-        </Link>
-        <Link to="/insights" className="nav-link">
-          <LineChart className="icon" size={18} aria-hidden="true" />
-          <span>Insights</span>
-        </Link>
-        <Link to="/tools" className="nav-link">
-          <Tool className="icon" size={18} aria-hidden="true" />
-          <span>Tools</span>
-        </Link>
-        <Link to="/guides" className="nav-link">
+        <Link to="/otc-guide" className="nav-link">
           <Book className="icon" size={18} aria-hidden="true" />
-          <span>Guides</span>
+          <span>OTC Guide</span>
+        </Link>
+        <Link to="/strep-tool" className="nav-link">
+          <ClipboardList className="icon" size={18} aria-hidden="true" />
+          <span>Strep Tool</span>
+        </Link>
+        <Link to="/book-now" className="nav-link">
+          <Tool className="icon" size={18} aria-hidden="true" />
+          <span>Book Now</span>
         </Link>
       </div>
 
-      {/* Actions Section */}
+      {/* Updated Actions Section */}
       <div className="nav-buttons">
-        <button className="nav-btn" aria-label="Import Data">
-          <FileImport className="icon" size={18} aria-hidden="true" />
-          <span>Import</span>
-        </button>
-
-        <button className="nav-btn" aria-label="Export Data">
-          <FileExport className="icon" size={18} aria-hidden="true" />
-          <span>Export</span>
-        </button>
-
-        <button className="nav-btn" onClick={handleInstallClick} aria-label="Install or Update EasyGP">
+        {/* Windows/Android Install/Update Button */}
+        <button
+          className="nav-btn"
+          onClick={handleInstallClick}
+          aria-label="Install or Update EasyGP"
+        >
           <Download className="icon" size={18} aria-hidden="true" />
           <span>{installText}</span>
+          <span className="platform-icons" style={{ marginLeft: "0.5rem" }}>
+            <Smartphone size={16} aria-hidden="true" style={{ marginRight: "0.25rem" }} />
+            <Grid2x2 size={16} aria-hidden="true" />
+          </span>
         </button>
 
-        <button className="nav-btn settings-btn" aria-label="Settings">
-          <Settings className="icon" size={18} aria-hidden="true" />
+        {/* iOS Install Button replacing the Settings button */}
+        <button
+          className="nav-btn"
+          onClick={handleIOSInstallClick}
+          aria-label="iOS Install Instructions"
+        >
+          <Apple className="icon" size={18} aria-hidden="true" />
+          <span>iOS Install</span>
         </button>
       </div>
     </nav>

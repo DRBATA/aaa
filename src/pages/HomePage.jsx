@@ -1,6 +1,15 @@
-// HomePage.js
+// HomePage.jsx
 import React from "react";
-import { Shield, Lock, Stethoscope, AlertCircle, CheckCircle, HelpCircle, FileText, Info } from 'lucide-react';
+import {
+  Shield,
+  Stethoscope,
+  Lock,
+  FileText,
+  Smartphone as OTCIcon,
+  ClipboardList as StrepIcon,
+  PenToolIcon as BookIcon,
+  Info,
+} from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -8,68 +17,93 @@ export default function HomePage() {
       <div className="hero-section">
         <h1>Welcome to EasyGP</h1>
         <p className="subtitle">
-          A privacy-first health journaling and diagnostic tool, designed for security, compliance, and seamless offline use.
+          EasyGP is your privacy-first health tool for symptom logging,
+          intelligent diagnostics, and over-the-counter treatment guidance.
+          Explore our new features:
         </p>
       </div>
 
       <div className="features-grid">
-        <div className="feature-card ethical-guidelines">
+        {/* Ethical and Privacy Section */}
+        <div className="feature-card">
           <div className="card-icon">
             <Shield size={32} />
           </div>
-          <h2>EasyGP: Ethical Principles & User Guidance</h2>
+          <h2>Ethical Guidance & Security</h2>
           <p>
-            At EasyGP, we believe that healthcare technology should empower users, protect privacy, and support collaboration with healthcare professionals.
+            We ensure your data remains private with no tracking, while providing
+            ethical and secure health management.
           </p>
         </div>
 
+        {/* Symptom Logging & Diagnostics Section */}
         <div className="feature-card">
           <div className="card-icon">
             <Stethoscope size={32} />
           </div>
-          <h2>Your Health, Your Control</h2>
-          <ul className="feature-list">
-            <li><CheckCircle size={16} /> EasyGP is a self-management tool</li>
-            <li><AlertCircle size={16} /> We do not diagnose or prescribe</li>
-            <li><HelpCircle size={16} /> Tools for self-monitoring and decision support</li>
-          </ul>
+          <h2>Symptom Logging & Analysis</h2>
+          <p>
+            Log your symptoms easily and receive intelligent analysis for better
+            self-monitoring.
+          </p>
         </div>
 
+        {/* Data Privacy Section */}
         <div className="feature-card">
           <div className="card-icon">
             <Lock size={32} />
           </div>
           <h2>Data Privacy & Security</h2>
-          <ul className="feature-list">
-            <li><CheckCircle size={16} /> No tracking, no ads, no third-party data sharing</li>
-            <li><CheckCircle size={16} /> Your data stays with you</li>
-            <li><CheckCircle size={16} /> No cookies or behavioral tracking</li>
-          </ul>
+          <p>
+            Your health data stays with you – secure, offline, and completely private.
+          </p>
         </div>
 
+        {/* OTC Guide Section */}
         <div className="feature-card">
           <div className="card-icon">
-            <FileText size={32} />
+            <OTCIcon size={32} />
           </div>
-          <h2>OTC Advice & Strep Testing AI</h2>
-          <ul className="feature-list">
-            <li><CheckCircle size={16} /> Focus on OTC medication guidance</li>
-            <li><CheckCircle size={16} /> AI-powered strep testing triage</li>
-            <li><AlertCircle size={16} /> No prescriptions or private consultations</li>
-            <li><HelpCircle size={16} /> CQC Compliance (Coming Soon)</li>
-          </ul>
+          <h2>OTC Guide</h2>
+          <p>
+            Discover over‑the‑counter treatment options with detailed advice and
+            QR code generation to share with your pharmacist.
+          </p>
         </div>
 
+        {/* Strep Tool Section */}
+        <div className="feature-card">
+          <div className="card-icon">
+            <StrepIcon size={32} />
+          </div>
+          <h2>Strep Tool</h2>
+          <p>
+            Manage your symptom logs, import/export your data, and get recommendations
+            for testing, tracking, or treatment.
+          </p>
+        </div>
+
+        {/* Book Now Section */}
+        <div className="feature-card">
+          <div className="card-icon">
+            <BookIcon size={32} />
+          </div>
+          <h2>Book Now</h2>
+          <p>
+            Soon you’ll be able to request tests, prescriptions, or further consultations
+            directly from the app.
+          </p>
+        </div>
+
+        {/* Info/Additional Section */}
         <div className="feature-card">
           <div className="card-icon">
             <Info size={32} />
           </div>
-          <h2>Future Compliance & Expansion</h2>
+          <h2>What's New?</h2>
           <p>
-            As we move toward CQC certification, we will expand to offer more comprehensive services under strict medical regulations.
-          </p>
-          <p className="disclaimer">
-            Users should always consult a healthcare professional for diagnosis, prescriptions, and ongoing care.
+            Explore our updated navigation bar featuring separate installation options:
+            Windows/Android via the install button and iOS installation instructions.
           </p>
         </div>
       </div>

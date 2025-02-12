@@ -1,8 +1,10 @@
-// App.js
+// App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import SymptomLog from "./pages/SymptomLog";
-import Navbar from "./components/Navbar"; // Make sure this path is correct
+import OTCGuide from "./pages/OTCGuide";
+import StrepTool from "./pages/StrepTool";
+import BookNow from "./pages/BookNow";
+import Navbar from "./components/Navbar";
 import "./App.css";
 
 export default function App() {
@@ -13,8 +15,9 @@ export default function App() {
         <main className="content">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/symptom-log" element={<SymptomLog />} />
-
+            <Route path="/otc-guide" element={<OTCGuide />} />
+            <Route path="/strep-tool" element={<StrepTool />} />
+            <Route path="/book-now" element={<BookNow />} />
           </Routes>
         </main>
       </div>
