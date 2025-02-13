@@ -1,4 +1,4 @@
-// pages/BookNow.js
+// src/pages/BookNow.jsx
 import React, { useState, useEffect } from "react";
 
 export default function BookNow() {
@@ -29,7 +29,8 @@ export default function BookNow() {
     }
 
     try {
-      const res = await fetch("/api/waitlist", {
+      // Adjust the URL if your backend is hosted elsewhere
+      const res = await fetch("http://localhost:5000/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email }),
@@ -59,7 +60,7 @@ export default function BookNow() {
         </p>
       </div>
 
-      {/* Intro & Features */}
+      {/* Content Sections */}
       <div className="features-grid px-6 py-4">
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
           <h2 className="text-xl font-semibold mb-2">
@@ -85,7 +86,6 @@ export default function BookNow() {
           </p>
         </div>
 
-        {/* How It Works & Pricing */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
           <h2 className="text-xl font-semibold mb-2">How It Works &amp; Pricing</h2>
           <ol className="list-decimal list-inside space-y-2">
@@ -120,7 +120,6 @@ export default function BookNow() {
           </ol>
         </div>
 
-        {/* Future Features & Waitlist Info */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
           <h2 className="text-xl font-semibold mb-2">Future Features &amp; Waitlist</h2>
           <p className="mb-2">
@@ -189,9 +188,7 @@ export default function BookNow() {
               Add to Waitlist
             </button>
           </form>
-          {message && (
-            <p className="mt-4 text-gray-600 text-sm">{message}</p>
-          )}
+          {message && <p className="mt-4 text-gray-600 text-sm">{message}</p>}
         </div>
       </div>
     </div>
