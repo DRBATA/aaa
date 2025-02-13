@@ -1,4 +1,3 @@
-// Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -64,8 +63,6 @@ export default function Navbar() {
         <img src={phiLogo} alt="EasyGP Logo" className="nav-logo" />
       </div>
 
-      {/* (Search section removed from Navbar) */}
-
       {/* Updated Main Navigation Links */}
       <div className="nav-links">
         <Link to="/" className="nav-link">
@@ -76,9 +73,10 @@ export default function Navbar() {
           <Book className="icon" size={18} aria-hidden="true" />
           <span>OTC Guide</span>
         </Link>
+        {/* If you want, you can update the link text to reflect the unified calculator */}
         <Link to="/strep-tool" className="nav-link">
           <ClipboardList className="icon" size={18} aria-hidden="true" />
-          <span>Strep Tool</span>
+          <span>Infection Calculator</span>
         </Link>
         <Link to="/book-now" className="nav-link">
           <Tool className="icon" size={18} aria-hidden="true" />
@@ -88,7 +86,6 @@ export default function Navbar() {
 
       {/* Updated Actions Section */}
       <div className="nav-buttons">
-        {/* Windows/Android Install/Update Button */}
         <button
           className="nav-btn"
           onClick={handleInstallClick}
@@ -102,7 +99,6 @@ export default function Navbar() {
           </span>
         </button>
 
-        {/* iOS Install Button replacing the Settings button */}
         <button
           className="nav-btn"
           onClick={handleIOSInstallClick}

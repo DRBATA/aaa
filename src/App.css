@@ -55,6 +55,22 @@ h1 {
   transform: translateY(-2px);
 }
 
+.glassmorphic-select {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: all 0.3s ease;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
 /* Home Page Styles */
 .home-container {
   padding: 2rem;
@@ -265,4 +281,132 @@ h1 {
   .ethical-guidelines {
     grid-column: auto;
   }
+}
+
+/* --- OTC Guide Page Specific Styles --- */
+
+/* Container for the entire OTC page */
+.otc-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: white;
+}
+
+/* Explanation Section at the top */
+.otc-explanation {
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: left;
+}
+
+/* Search container and input styling */
+.otc-search {
+  margin-bottom: 2rem;
+}
+
+.otc-search-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+}
+
+/* Cards Container: grid layout for treatment cards */
+.otc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Each treatment card */
+.otc-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: left;
+}
+
+.otc-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Card title */
+.otc-card h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: white;
+}
+
+/* Card list styling */
+.otc-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.otc-card ul li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Actions within each card */
+.card-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Button to toggle QR code */
+.qr-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: white;
+  transition: background 0.3s ease;
+  font-size: 1rem;
+}
+
+.qr-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* "Book Now" link styled as a button */
+.book-now-btn {
+  background: #FFCC00;
+  color: black;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  font-size: 1rem;
+}
+
+.book-now-btn:hover {
+  background: #e6b800;
+}
+
+/* QR code container */
+.qr-code {
+  margin-top: 1rem;
+  text-align: center;
 }

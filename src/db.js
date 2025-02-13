@@ -1,10 +1,13 @@
-import Dexie from 'dexie';
+// db.js
+import Dexie from "dexie";
 
-export const db = new Dexie('HealthTrackerDB');
+// Create a new Dexie database named "StrepDatabase"
+export const db = new Dexie("StrepDatabase");
 
+// Define the schema for version 1 of your database.
+// Each log entry stores the user-entered startDate (when symptoms began),
+// the observationDate (when this log was recorded),
+// the final outcome, and all other symptom data.
 db.version(1).stores({
-  symptomLogs: '++id, date, fever, tonsilSize, pusCoverage, lymphNodes, rash, cough, sneezing, mood, irritability, ocd, tics, regression, sleepIssues, appetite, socialWithdrawal',
-  riskAssessments: '++id, date, strepProbability, viralProbability, explanation',
-  decisionFlow: '++id, date, previousSymptoms, nextQuestion, explanation',
-  longTermTracking: '++id, date, strepRiskOverTime, viralRiskOverTime, finalAssessment'
+  logs: "++id, startDate, observationDate, outcome"
 });
