@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     // Prepare email data to notify the admin
     const emailData = {
-      from: "onboarding@yourverifieddomain.com", // Must be verified in Resend
+      from: "dr@easygp.com", // Must be verified in Resend
       to: process.env.EMAIL_USER,                // Admin receives this notification
       subject: "New User Registration on EasyGP",
       html: `<p>A new user has registered:</p>
