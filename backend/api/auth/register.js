@@ -7,13 +7,15 @@ import "dotenv/config";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }
 });
 
 // Initialize Resend with your API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
+  console.log("Registration endpoint triggered"); // <-- Added console log
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -33,7 +35,7 @@ export default async function handler(req, res) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Optionally generate a confirmation token if needed later
+    // Optionally generate a confirmation token (if needed later)
     const token = crypto.randomBytes(20).toString("hex");
 
     // Insert the new user into the database (confirmed remains false until payment)
@@ -44,8 +46,8 @@ export default async function handler(req, res) {
 
     // Prepare email data to notify the admin
     const emailData = {
-      from: "onboarding@yourverifieddomain.com", // This sender must be verified in Resend
-      to: process.env.EMAIL_USER, // Admin notification (your email)
+      from: "onboarding@yourverifieddomain.com", // Must be a verified sender in Resend
+      to: process.env.EMAIL_USER, // Admin email (your email)
       subject: "New User Registration on EasyGP",
       html: `<p>A new user has registered:</p>
              <p><strong>Name:</strong> ${name}<br/><strong>Email:</strong> ${email}</p>
