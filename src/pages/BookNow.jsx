@@ -1,8 +1,10 @@
+// src/pages/BookNow.jsx
 import React, { useState, useEffect } from "react";
 
 export default function BookNow() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [extraField, setExtraField] = useState(""); // Honeypot field
   const [message, setMessage] = useState("");
   const [formLoadTime, setFormLoadTime] = useState(Date.now());
@@ -14,13 +16,13 @@ export default function BookNow() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Honeypot check: this field should remain empty
+    // Honeypot check: should remain empty
     if (extraField) {
       setMessage("Spam detected.");
       return;
     }
 
-    // Time delay check: if submitted too quickly, it's likely a bot
+    // Time delay check: if too quick, likely a bot
     const elapsedTime = Date.now() - formLoadTime;
     if (elapsedTime < 2000) {
       setMessage("Please take a moment to fill out the form.");
@@ -31,14 +33,15 @@ export default function BookNow() {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ name, email, password })
       });
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Success! Please check your email to confirm your signup. Once confirmed, you'll receive a payment link for your tests.");
+        setMessage("Success! Please await a payment link on your phone.");
         setName("");
         setEmail("");
+        setPassword("");
       } else {
         setMessage(data.error || "An error occurred.");
       }
@@ -50,44 +53,33 @@ export default function BookNow() {
 
   return (
     <div className="home-container">
-      {/* Hero Section */}
       <div className="hero-section text-center p-6">
-        <h1 className="text-3xl font-bold mb-2">Book Your Testing Session</h1>
+        <h1 className="text-3xl font-bold mb-2">Secure Your Spot Today</h1>
         <p className="subtitle text-gray-600">
-          Ultimate Strep &amp; PANDAS Testing &amp; Guide Curated by a Doctor with 20 Years’ Experience
+          Register now to receive a confirmation email. Once confirmed, you'll be sent a payment link to complete your booking. After payment, you'll gain access to in-depth examination guides, expert tips, and our comprehensive treatment guide.
         </p>
       </div>
 
       <div className="features-grid px-6 py-4">
-        {/* Pricing and Value Proposition */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
-          <h2 className="text-xl font-semibold mb-2">Transparent & Affordable Testing</h2>
+          <h2 className="text-xl font-semibold mb-2">Affordable Testing Packages</h2>
           <p className="mb-2">
-            Each testing session includes:
-            <br />
-            • A Swab Test at <strong>£19.99</strong>
-            <br />
-            • A CRP Test at <strong>£19.99</strong>
-          </p>
-          <p className="mb-2">
-            Baseline testing for strep and CRP provides vital information on whether a strep infection is present or if household contacts should be tested. This is especially useful in cases of recurrent symptoms, unclear diagnoses (e.g., new ADHD, regression, or developmental issues), and ensuring children don’t fall through the gaps.
+            • Swab Test: <strong>£19.99</strong><br />
+            • CRP Test: <strong>£19.99</strong>
           </p>
           <p>
-            Our approach is curated by a doctor with nearly 20 years of experience—designed to reduce unnecessary testing and provide clear, expert guidance on managing strep-related conditions.
+            Baseline testing for strep and CRP is essential for diagnosing recurring or unclear symptoms. This guide, curated by a doctor with 20 years of experience, is designed to reduce unnecessary tests and bridge gaps in care.
           </p>
         </div>
 
-        {/* Waitlist / Registration Form */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md">
-          <h2 className="text-xl font-semibold mb-2">Secure Your Spot Today</h2>
+          <h2 className="text-xl font-semibold mb-2">Ready to Get Started?</h2>
           <p className="mb-4">
-            Register now to receive a confirmation email. Once confirmed, you'll be sent a payment link to complete your booking. After payment, you can log in to access in-depth examination guides, expert tips, and our comprehensive treatment guide.
+            Register now by entering your details. Once you register, you'll receive an email notification (to our admin) so that we can send you a payment link to complete your booking. Once payment is confirmed, you'll be able to log in and access exclusive content.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
-              </label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
               <input
                 id="name"
                 name="name"
@@ -99,9 +91,7 @@ export default function BookNow() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
               <input
                 id="email"
                 name="email"
@@ -112,7 +102,19 @@ export default function BookNow() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            {/* Honeypot Field (invisible to users) */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            {/* Honeypot Field */}
             <div style={{ display: "none" }}>
               <label htmlFor="extraField">Leave this field blank</label>
               <input
