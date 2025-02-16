@@ -1,4 +1,3 @@
-// src/pages/BookNow.jsx
 import React, { useState, useEffect } from "react";
 
 export default function BookNow() {
@@ -29,23 +28,22 @@ export default function BookNow() {
     }
 
     try {
-      // Adjust the URL if your backend is hosted elsewhere
-      const res = await fetch("http://localhost:5000/api/waitlist", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ email })
       });
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Success! Please check your email to verify your signup.");
+        setMessage("Success! Please check your email to confirm your signup. Once confirmed, you'll receive a payment link for your tests.");
         setName("");
         setEmail("");
       } else {
         setMessage(data.error || "An error occurred.");
       }
     } catch (error) {
-      console.error("Error submitting waitlist form:", error);
+      console.error("Error submitting form:", error);
       setMessage("An error occurred. Please try again later.");
     }
   };
@@ -54,92 +52,36 @@ export default function BookNow() {
     <div className="home-container">
       {/* Hero Section */}
       <div className="hero-section text-center p-6">
-        <h1 className="text-3xl font-bold mb-2">Book Now</h1>
+        <h1 className="text-3xl font-bold mb-2">Book Your Testing Session</h1>
         <p className="subtitle text-gray-600">
-          Experience-Based Strep &amp; PANDAS Care That Transforms Lives
+          Ultimate Strep &amp; PANDAS Testing &amp; Guide Curated by a Doctor with 20 Years’ Experience
         </p>
       </div>
 
-      {/* Content Sections */}
       <div className="features-grid px-6 py-4">
+        {/* Pricing and Value Proposition */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
-          <h2 className="text-xl font-semibold mb-2">
-            Why Our Approach is Different
-          </h2>
+          <h2 className="text-xl font-semibold mb-2">Transparent & Affordable Testing</h2>
           <p className="mb-2">
-            Are you worried a hidden strep infection could be triggering your
-            child’s anxiety, tics, or behavioral changes? Unlike standard NHS
-            pathways that often overlook the strep connection, we use an advanced
-            system of Bayesian calculations, in-depth testing, and targeted
-            antibiotic regimens to tackle strep-based conditions like PANDAS,
-            atypical anorexia, and certain autism-related symptoms.
+            Each testing session includes:
+            <br />
+            • A Swab Test at <strong>£19.99</strong>
+            <br />
+            • A CRP Test at <strong>£19.99</strong>
           </p>
           <p className="mb-2">
-            Our protocols are customized for each child, covering medication,
-            bone health, and nutritional considerations — all backed by years of
-            clinical experience and real-world results. We help your child regain
-            focus, reduce anxiety, and restore their true self.
+            Baseline testing for strep and CRP provides vital information on whether a strep infection is present or if household contacts should be tested. This is especially useful in cases of recurrent symptoms, unclear diagnoses (e.g., new ADHD, regression, or developmental issues), and ensuring children don’t fall through the gaps.
           </p>
           <p>
-            Parents report reduced burnout and renewed hope with our holistic,
-            proven approach.
+            Our approach is curated by a doctor with nearly 20 years of experience—designed to reduce unnecessary testing and provide clear, expert guidance on managing strep-related conditions.
           </p>
         </div>
 
-        <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
-          <h2 className="text-xl font-semibold mb-2">How It Works &amp; Pricing</h2>
-          <ol className="list-decimal list-inside space-y-2">
-            <li>
-              <strong>Initial Consultation (60–90 Minutes) – £249</strong>
-              <br />
-              Comprehensive assessment, strep testing guidance, and a personalized
-              care plan. Includes post-consult summary with recommended steps.
-            </li>
-            <li>
-              <strong>Ongoing Support &amp; Monitoring</strong>
-              <ul className="list-disc list-inside ml-4 mt-1">
-                <li>
-                  <strong>Monthly Subscription – £79/month</strong>
-                  <br />
-                  Up to 2 follow-up virtual consults (20–30 mins), secure messaging for
-                  urgent questions, and regular plan adjustments.
-                </li>
-                <li>
-                  <strong>Pay-Per-Follow-Up – £65 per 20-min consult</strong>
-                  <br />
-                  Perfect if you prefer occasional check-ins rather than a monthly plan.
-                </li>
-              </ul>
-            </li>
-            <li>
-              <strong>Achieve Lasting Change</strong>
-              <br />
-              Watch your child’s tics, anxiety, or eating challenges improve as
-              strep/immune triggers are properly addressed.
-            </li>
-          </ol>
-        </div>
-
-        <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
-          <h2 className="text-xl font-semibold mb-2">Future Features &amp; Waitlist</h2>
-          <p className="mb-2">
-            We’re developing advanced symptom calculators and a cognitive journaling
-            platform to further empower your family. These upcoming tools will help
-            you track your child’s progress, understand potential triggers, and
-            seamlessly integrate with our medical consultations.
-          </p>
-          <p>
-            <strong>Join our waitlist</strong> to be the first to access these
-            features, enjoy exclusive discounts, and help shape our evolving tools.
-          </p>
-        </div>
-
-        {/* Waitlist Form */}
+        {/* Waitlist / Registration Form */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md">
-          <h2 className="text-xl font-semibold mb-2">Ready to Begin?</h2>
+          <h2 className="text-xl font-semibold mb-2">Secure Your Spot Today</h2>
           <p className="mb-4">
-            <strong>Take the first step</strong> by joining our waitlist and secure your
-            spot for upcoming features.
+            Register now to receive a confirmation email. Once confirmed, you'll be sent a payment link to complete your booking. After payment, you can log in to access in-depth examination guides, expert tips, and our comprehensive treatment guide.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -185,7 +127,7 @@ export default function BookNow() {
               type="submit"
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
             >
-              Add to Waitlist
+              Register for Testing
             </button>
           </form>
           {message && <p className="mt-4 text-gray-600 text-sm">{message}</p>}

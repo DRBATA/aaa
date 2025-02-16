@@ -15,19 +15,20 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Test the database connection
 pool.connect()
   .then(() => console.log("Connected to NeonDB ✅"))
   .catch((err) => console.error("Database connection error:", err));
 
-// Import and mount authentication routes
+// Mount routes
 const authRoutes = require("./routes/auth");
+const testsRoutes = require("./routes/tests");
+
 app.use("/api/auth", authRoutes);
+app.use("/api/tests", testsRoutes);
 
 // Basic test route
 app.get("/", (req, res) => {
   res.send("EasyGP Backend is Running! 🚀");
 });
 
-// Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT} 🔥`));
