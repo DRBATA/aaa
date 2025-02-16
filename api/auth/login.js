@@ -1,11 +1,11 @@
 // /api/auth/login.js
-import { Pool } from "pg";
+import pkg from "pg";
+const { Pool } = pkg;
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const pkg = { Pool };
-const pool = new pkg.Pool({
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });

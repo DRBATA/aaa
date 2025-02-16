@@ -1,14 +1,15 @@
 // /api/tests.js
-import { Pool } from "pg";
+import pkg from "pg";
+const { Pool } = pkg;
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const pkg = { Pool };
-const pool = new pkg.Pool({
+const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
+// Helper function to verify JWT token
 function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

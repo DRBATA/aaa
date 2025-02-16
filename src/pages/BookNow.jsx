@@ -1,4 +1,3 @@
-// src/pages/BookNow.jsx
 import React, { useState, useEffect } from "react";
 
 export default function BookNow() {
@@ -18,6 +17,7 @@ export default function BookNow() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Honeypot check
     if (extraField) {
       setMessage("Spam detected.");
       return;
@@ -51,7 +51,7 @@ export default function BookNow() {
     }
   };
 
-  // Test Hello API
+  // Test Hello API handler
   const handleTestHello = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`);
