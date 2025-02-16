@@ -8,21 +8,21 @@ export default function BookNow() {
   const [extraField, setExtraField] = useState(""); // Honeypot field
   const [message, setMessage] = useState("");
   const [formLoadTime, setFormLoadTime] = useState(Date.now());
+  const [helloMessage, setHelloMessage] = useState("");
 
   useEffect(() => {
     setFormLoadTime(Date.now());
   }, []);
 
+  // Registration handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Honeypot check: should remain empty
     if (extraField) {
       setMessage("Spam detected.");
       return;
     }
 
-    // Time delay check: if too quick, likely a bot
     const elapsedTime = Date.now() - formLoadTime;
     if (elapsedTime < 2000) {
       setMessage("Please take a moment to fill out the form.");
@@ -30,7 +30,7 @@ export default function BookNow() {
     }
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password })
@@ -51,6 +51,18 @@ export default function BookNow() {
     }
   };
 
+  // Test Hello API
+  const handleTestHello = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`);
+      const data = await res.json();
+      setHelloMessage(data.message);
+    } catch (error) {
+      console.error("Error calling hello API:", error);
+      setHelloMessage("Error calling API");
+    }
+  };
+
   return (
     <div className="home-container">
       <div className="hero-section text-center p-6">
@@ -68,14 +80,14 @@ export default function BookNow() {
             • CRP Test: <strong>£19.99</strong>
           </p>
           <p>
-            Baseline testing for strep and CRP is essential for diagnosing recurring or unclear symptoms. This guide, curated by a doctor with 20 years of experience, is designed to reduce unnecessary tests and bridge gaps in care.
+            Baseline testing for strep and CRP is essential for diagnosing recurring or unclear symptoms. Our curated approach bridges the gap for families with new ADHD, regression, or developmental issues.
           </p>
         </div>
 
         <div className="feature-card bg-white shadow-md p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">Ready to Get Started?</h2>
           <p className="mb-4">
-            Register now by entering your details. Once you register, you'll receive an email notification (to our admin) so that we can send you a payment link to complete your booking. Once payment is confirmed, you'll be able to log in and access exclusive content.
+            Register now by entering your details below. Once you register, you'll receive an email notification so we can send you a payment link to complete your booking.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -114,7 +126,7 @@ export default function BookNow() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            {/* Honeypot Field */}
+            {/* Honeypot Field (hidden) */}
             <div style={{ display: "none" }}>
               <label htmlFor="extraField">Leave this field blank</label>
               <input
@@ -133,6 +145,17 @@ export default function BookNow() {
             </button>
           </form>
           {message && <p className="mt-4 text-gray-600 text-sm">{message}</p>}
+        </div>
+
+        {/* Test API Button */}
+        <div className="feature-card bg-white shadow-md p-4 rounded-md mt-4">
+          <button
+            onClick={handleTestHello}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Test Hello API
+          </button>
+          {helloMessage && <p className="mt-4 text-gray-600 text-sm">Response: {helloMessage}</p>}
         </div>
       </div>
     </div>

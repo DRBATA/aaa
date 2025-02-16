@@ -3,12 +3,12 @@ import { Pool } from "pg";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const pool = new Pool({
+const pkg = { Pool };
+const pool = new pkg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }
 });
 
-// Helper: Verify JWT token
 function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

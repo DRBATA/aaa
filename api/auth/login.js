@@ -4,9 +4,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
-const pool = new Pool({
+const pkg = { Pool };
+const pool = new pkg.Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }
 });
 
 export default async function handler(req, res) {
@@ -31,7 +32,6 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Generate JWT token (valid for 1 year)
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1y" });
     return res.json({ message: "Login successful!", token, user });
   } catch (err) {

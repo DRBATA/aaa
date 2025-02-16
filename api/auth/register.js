@@ -3,9 +3,10 @@ import { Pool } from "pg";
 import { Resend } from "resend";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import "dotenv/config";
+// In production on Vercel, process.env variables are injected automatically.
 
-const pool = new Pool({
+const pkg = { Pool }; // For ESM compatibility with pg (if needed)
+const pool = new pkg.Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
@@ -14,7 +15,7 @@ const pool = new Pool({
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  console.log("Registration endpoint triggered"); // <-- Added console log
+  console.log("Registration endpoint triggered");
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Check if the user already exists
+    // Check if user already exists
     const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (userExists.rows.length > 0) {
       return res.status(400).json({ error: "User already registered" });
@@ -35,10 +36,10 @@ export default async function handler(req, res) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Optionally generate a confirmation token (if needed later)
+    // Optionally, generate a confirmation token if needed later (not used in this example)
     const token = crypto.randomBytes(20).toString("hex");
 
-    // Insert the new user into the database (confirmed remains false until payment)
+    // Insert new user into the database (confirmed remains false until payment)
     const newUser = await pool.query(
       "INSERT INTO users (name, email, password_hash, confirmed) VALUES ($1, $2, $3, false) RETURNING *",
       [name, email, hashedPassword]
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
              <p>Please send them a payment link to complete their registration.</p>`
     };
 
-    // Send email via Resend
+    // Send the email via Resend
     const emailResponse = await resend.emails.send(emailData);
     console.log("Resend response:", emailResponse);
 
