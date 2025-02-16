@@ -1,9 +1,7 @@
 // /api/auth/register.js
 import pkg from 'pg';
 const { Pool } = pkg;
-import { Resend } from 'resend';
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import 'dotenv/config';
 
 const pool = new Pool({
@@ -11,13 +9,9 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Initialize Resend with your API key
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export default async function handler(req, res) {
   console.log("Registration endpoint triggered");
 
-  // Only accept POST requests
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -28,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Check if user already exists
+    // Check if the email is already registered
     const userExists = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (userExists.rows.length > 0) {
       return res.status(400).json({ error: "User already registered" });
@@ -37,31 +31,14 @@ export default async function handler(req, res) {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // (Optional) Generate a confirmation token if needed later
-    const token = crypto.randomBytes(20).toString("hex");
-
-    // Insert new user into the database (confirmed remains false until payment)
+    // Insert new user with confirmed set to true (no follow‑up email)
     const newUser = await pool.query(
-      "INSERT INTO users (name, email, password_hash, confirmed) VALUES ($1, $2, $3, false) RETURNING *",
+      "INSERT INTO users (name, email, password_hash, confirmed) VALUES ($1, $2, $3, true) RETURNING *",
       [name, email, hashedPassword]
     );
 
-    // Prepare email data to notify the admin
-    const emailData = {
-      from: "dr@easygp.com", // Using your verified sender email
-      to: process.env.EMAIL_USER, // Admin email (should also be dr@easygp.com if that's your admin)
-      subject: "New User Registration on EasyGP",
-      html: `<p>A new user has registered:</p>
-             <p><strong>Name:</strong> ${name}<br/><strong>Email:</strong> ${email}</p>
-             <p>Please send them a payment link to complete their registration.</p>`
-    };
-
-    // Send the email via Resend
-    const emailResponse = await resend.emails.send(emailData);
-    console.log("Resend response:", emailResponse);
-
     return res.status(201).json({
-      message: "Thank you for registering. Please await a payment link on your phone.",
+      message: "User registered successfully!",
       user: newUser.rows[0]
     });
   } catch (err) {

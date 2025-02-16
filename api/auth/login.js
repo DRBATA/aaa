@@ -1,9 +1,9 @@
 // /api/auth/login.js
-import pkg from "pg";
+import pkg from 'pg';
 const { Pool } = pkg;
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import "dotenv/config";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -11,6 +11,8 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
+  console.log("Login endpoint triggered");
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -32,6 +34,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Generate a JWT token valid for 1 year
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "1y" });
     return res.json({ message: "Login successful!", token, user });
   } catch (err) {

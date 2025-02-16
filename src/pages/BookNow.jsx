@@ -13,7 +13,7 @@ export default function BookNow() {
     setFormLoadTime(Date.now());
   }, []);
 
-  // Registration handler
+  // Registration handler: calls your /api/auth/register endpoint
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -38,7 +38,7 @@ export default function BookNow() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("Success! Please await a payment link on your phone.");
+        setMessage("Success! You are registered and can now log in to view your anonymised test results.");
         setName("");
         setEmail("");
         setPassword("");
@@ -51,7 +51,7 @@ export default function BookNow() {
     }
   };
 
-  // Test Hello API handler
+  // Test Hello API handler: calls the /api/hello endpoint and displays the message
   const handleTestHello = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`);
@@ -68,7 +68,7 @@ export default function BookNow() {
       <div className="hero-section text-center p-6">
         <h1 className="text-3xl font-bold mb-2">Secure Your Spot Today</h1>
         <p className="subtitle text-gray-600">
-          Register now to receive a confirmation email. Once confirmed, you'll be sent a payment link to complete your booking. After payment, you'll gain access to in-depth examination guides, expert tips, and our comprehensive treatment guide.
+          Register now to sign up for our waitlist. Once registered, you'll be able to log in and access your anonymised test results.
         </p>
       </div>
 
@@ -76,7 +76,8 @@ export default function BookNow() {
         <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
           <h2 className="text-xl font-semibold mb-2">Affordable Testing Packages</h2>
           <p className="mb-2">
-            • Swab Test: <strong>£19.99</strong><br />
+            • Swab Test: <strong>£19.99</strong>
+            <br />
             • CRP Test: <strong>£19.99</strong>
           </p>
           <p>
@@ -87,7 +88,7 @@ export default function BookNow() {
         <div className="feature-card bg-white shadow-md p-4 rounded-md">
           <h2 className="text-xl font-semibold mb-2">Ready to Get Started?</h2>
           <p className="mb-4">
-            Register now by entering your details below. Once you register, you'll receive an email notification so we can send you a payment link to complete your booking.
+            Register now by entering your details below. Once you register, you can log in to view your anonymised test results.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -147,7 +148,6 @@ export default function BookNow() {
           {message && <p className="mt-4 text-gray-600 text-sm">{message}</p>}
         </div>
 
-        {/* Test API Button */}
         <div className="feature-card bg-white shadow-md p-4 rounded-md mt-4">
           <button
             onClick={handleTestHello}
