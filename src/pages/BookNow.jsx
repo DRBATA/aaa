@@ -1,163 +1,114 @@
-import React, { useState, useEffect } from "react";
+"use client"
+
+import { useState } from "react"
 
 export default function BookNow() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [extraField, setExtraField] = useState(""); // Honeypot field
-  const [message, setMessage] = useState("");
-  const [formLoadTime, setFormLoadTime] = useState(Date.now());
-  const [helloMessage, setHelloMessage] = useState("");
+  const [pusOnTonsils, setPusOnTonsils] = useState(false)
+  const [tenderGlands, setTenderGlands] = useState(false)
+  const [result, setResult] = useState("")
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    setFormLoadTime(Date.now());
-  }, []);
-
-  // Registration handler: calls your /api/auth/register endpoint
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Honeypot check
-    if (extraField) {
-      setMessage("Spam detected.");
-      return;
-    }
-
-    const elapsedTime = Date.now() - formLoadTime;
-    if (elapsedTime < 2000) {
-      setMessage("Please take a moment to fill out the form.");
-      return;
-    }
-
+  // Handle the API call when the Check Symptoms button is clicked
+  const handleCheckSymptoms = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
+      setLoading(true)
+      setResult("")
+
+      console.log("Checking symptoms with API...")
+      console.log("Pus on Tonsils:", pusOnTonsils)
+      console.log("Tender Glands:", tenderGlands)
+
+      // Call the API with the symptom data
+      const response = await fetch("/api/check-symptoms", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
-      });
-      const data = await res.json();
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          pusOnTonsils,
+          tenderGlands,
+        }),
+      })
 
-      if (res.ok) {
-        setMessage("Success! You are registered and can now log in to view your anonymised test results.");
-        setName("");
-        setEmail("");
-        setPassword("");
-      } else {
-        setMessage(data.error || "An error occurred.");
+      if (!response.ok) {
+        throw new Error(`API returned status: ${response.status}`)
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      setMessage("An error occurred. Please try again later.");
-    }
-  };
 
-  // Test Hello API handler: calls the /api/hello endpoint and displays the message
-  const handleTestHello = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/hello`);
-      const data = await res.json();
-      setHelloMessage(data.message);
+      const data = await response.json()
+      setResult(data.recommendation)
+      console.log("API response:", data)
     } catch (error) {
-      console.error("Error calling hello API:", error);
-      setHelloMessage("Error calling API");
+      console.error("Error calling symptoms API:", error)
+      setResult(`Error: ${error.message}`)
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="home-container">
-      <div className="hero-section text-center p-6">
-        <h1 className="text-3xl font-bold mb-2">Secure Your Spot Today</h1>
-        <p className="subtitle text-gray-600">
-          Register now to sign up for our waitlist. Once registered, you'll be able to log in and access your anonymised test results.
-        </p>
-      </div>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-center mb-6">Strep Throat Checker</h1>
 
-      <div className="features-grid px-6 py-4">
-        <div className="feature-card bg-white shadow-md p-4 rounded-md mb-6">
-          <h2 className="text-xl font-semibold mb-2">Affordable Testing Packages</h2>
-          <p className="mb-2">
-            • Swab Test: <strong>£19.99</strong>
-            <br />
-            • CRP Test: <strong>£19.99</strong>
-          </p>
-          <p>
-            Baseline testing for strep and CRP is essential for diagnosing recurring or unclear symptoms. Our curated approach bridges the gap for families with new ADHD, regression, or developmental issues.
-          </p>
+      <div className="space-y-4 mb-6">
+        <div className="flex items-center justify-between p-3 border rounded-md">
+          <label htmlFor="pusOnTonsils" className="font-medium">
+            Pus on Tonsils
+          </label>
+          <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+            <input
+              type="checkbox"
+              id="pusOnTonsils"
+              className="absolute w-6 h-6 opacity-0 z-10 cursor-pointer"
+              checked={pusOnTonsils}
+              onChange={(e) => setPusOnTonsils(e.target.checked)}
+            />
+            <div
+              className={`w-12 h-6 rounded-full transition-colors ${pusOnTonsils ? "bg-green-500" : "bg-gray-300"}`}
+            ></div>
+            <div
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${pusOnTonsils ? "transform translate-x-6" : ""}`}
+            ></div>
+          </div>
         </div>
 
-        <div className="feature-card bg-white shadow-md p-4 rounded-md">
-          <h2 className="text-xl font-semibold mb-2">Ready to Get Started?</h2>
-          <p className="mb-4">
-            Register now by entering your details below. Once you register, you can log in to view your anonymised test results.
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            {/* Honeypot Field (hidden) */}
-            <div style={{ display: "none" }}>
-              <label htmlFor="extraField">Leave this field blank</label>
-              <input
-                id="extraField"
-                name="extraField"
-                type="text"
-                value={extraField}
-                onChange={(e) => setExtraField(e.target.value)}
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-            >
-              Register for Testing
-            </button>
-          </form>
-          {message && <p className="mt-4 text-gray-600 text-sm">{message}</p>}
-        </div>
-
-        <div className="feature-card bg-white shadow-md p-4 rounded-md mt-4">
-          <button
-            onClick={handleTestHello}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Test Hello API
-          </button>
-          {helloMessage && <p className="mt-4 text-gray-600 text-sm">Response: {helloMessage}</p>}
+        <div className="flex items-center justify-between p-3 border rounded-md">
+          <label htmlFor="tenderGlands" className="font-medium">
+            Tender Glands
+          </label>
+          <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full">
+            <input
+              type="checkbox"
+              id="tenderGlands"
+              className="absolute w-6 h-6 opacity-0 z-10 cursor-pointer"
+              checked={tenderGlands}
+              onChange={(e) => setTenderGlands(e.target.checked)}
+            />
+            <div
+              className={`w-12 h-6 rounded-full transition-colors ${tenderGlands ? "bg-green-500" : "bg-gray-300"}`}
+            ></div>
+            <div
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${tenderGlands ? "transform translate-x-6" : ""}`}
+            ></div>
+          </div>
         </div>
       </div>
+
+      <button
+        onClick={handleCheckSymptoms}
+        disabled={loading}
+        className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+      >
+        {loading ? "Checking..." : "Check Symptoms"}
+      </button>
+
+      {result && (
+        <div
+          className={`mt-6 p-4 rounded-md ${result.includes("Seek Antibiotics") ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800"}`}
+        >
+          <p className="font-medium">{result}</p>
+        </div>
+      )}
     </div>
-  );
+  )
 }
+
