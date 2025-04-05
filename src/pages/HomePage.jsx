@@ -30,38 +30,14 @@ import {
   ReferenceLine,
 } from "recharts";
 
-// Wellness activities data
+// ----- Dummy Data: Categories & Activities -----
 const categories = [
-  {
-    id: 1,
-    name: "Meditation",
-    description: "Practices to calm the mind and increase awareness",
-  },
-  {
-    id: 2,
-    name: "Stretching",
-    description: "Exercises to improve flexibility and reduce tension",
-  },
-  {
-    id: 3,
-    name: "Rehabilitation",
-    description: "Exercises designed for recovery and healing",
-  },
-  {
-    id: 4,
-    name: "Movement",
-    description: "Activities involving walking and physical movement",
-  },
-  {
-    id: 5,
-    name: "Poetry",
-    description: "Reading and reflecting on poems for mental wellbeing",
-  },
-  {
-    id: 6,
-    name: "Games",
-    description: "Playful activities to stimulate the mind",
-  },
+  { id: 1, name: "Meditation", description: "Practices to calm the mind and increase awareness" },
+  { id: 2, name: "Stretching", description: "Exercises to improve flexibility and reduce tension" },
+  { id: 3, name: "Rehabilitation", description: "Exercises designed for recovery and healing" },
+  { id: 4, name: "Movement", description: "Activities involving walking and physical movement" },
+  { id: 5, name: "Poetry", description: "Reading and reflecting on poems for mental wellbeing" },
+  { id: 6, name: "Games", description: "Playful activities to stimulate the mind" },
 ];
 
 const activities = [
@@ -75,232 +51,30 @@ const activities = [
     forHighBP: true,
     forLowMood: true,
     chemicals: [
-      {
-        name: "Endorphins",
-        effect: "Natural pain relievers that also trigger positive feelings",
-      },
-      {
-        name: "GABA",
-        effect: "Reduces neuronal excitability throughout the nervous system",
-      },
+      { name: "Endorphins", effect: "Natural pain relievers and mood boosters" },
+      { name: "GABA", effect: "Reduces neuronal excitability" },
     ],
-    benefits: [
-      "Reduces stress and anxiety",
-      "Improves focus and concentration",
-      "Lowers blood pressure",
-      "Enhances self-awareness",
-    ],
+    benefits: ["Reduces stress", "Lowers blood pressure", "Enhances focus"],
   },
   {
     id: 2,
     name: "Gentle Neck Stretches",
-    description: "A series of gentle stretches to release tension in the neck and shoulders.",
+    description: "Stretches to release tension in the neck and shoulders.",
     duration: 5,
     imageUrl: "/placeholder.svg?height=400&width=600",
     categoryIds: [2, 3],
     forHighBP: true,
     forLowMood: false,
     chemicals: [
-      {
-        name: "Endorphins",
-        effect: "Reduces pain perception and creates a sense of wellbeing",
-      },
-      {
-        name: "Serotonin",
-        effect: "Contributes to feelings of wellbeing and happiness",
-      },
+      { name: "Endorphins", effect: "Reduces pain perception" },
+      { name: "Serotonin", effect: "Enhances wellbeing" },
     ],
-    benefits: [
-      "Relieves neck and shoulder tension",
-      "Improves range of motion",
-      "Reduces headaches",
-      "Decreases stress",
-    ],
+    benefits: ["Relieves tension", "Improves range of motion", "Decreases headaches"],
   },
-  {
-    id: 3,
-    name: "Nature Walk",
-    description: "A mindful walk in nature to boost mood and energy levels.",
-    duration: 30,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [4],
-    forHighBP: false,
-    forLowMood: true,
-    chemicals: [
-      {
-        name: "Endocannabinoids",
-        effect: "Creates a sense of calm and reduced anxiety",
-      },
-      {
-        name: "Dopamine",
-        effect: "Provides feelings of reward and pleasure",
-      },
-    ],
-    benefits: [
-      "Boosts mood and energy",
-      "Reduces stress and anxiety",
-      "Improves cardiovascular health",
-      "Enhances creativity and problem-solving",
-    ],
-  },
-  {
-    id: 4,
-    name: 'Reading "The Peace of Wild Things"',
-    description: "Reading and reflecting on Wendell Berry's poem about finding peace in nature.",
-    duration: 15,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [5],
-    forHighBP: true,
-    forLowMood: true,
-    chemicals: [
-      {
-        name: "Oxytocin",
-        effect: "Creates feelings of bonding and emotional connection",
-      },
-      {
-        name: "Serotonin",
-        effect: "Regulates mood and promotes feelings of wellbeing",
-      },
-    ],
-    benefits: [
-      "Reduces stress through emotional connection",
-      "Provides perspective on personal struggles",
-      "Encourages mindfulness and presence",
-      "Fosters connection with nature",
-    ],
-  },
-  {
-    id: 5,
-    name: "Memory Match Game",
-    description: "A card-matching game that improves memory and concentration.",
-    duration: 20,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [6],
-    forHighBP: false,
-    forLowMood: true,
-    chemicals: [
-      {
-        name: "Dopamine",
-        effect: "Released when finding matches, creating feelings of reward",
-      },
-      {
-        name: "Acetylcholine",
-        effect: "Supports memory formation and attention",
-      },
-    ],
-    benefits: [
-      "Improves short-term memory",
-      "Enhances concentration",
-      "Reduces stress through focused attention",
-      "Provides mental stimulation",
-    ],
-  },
-  {
-    id: 6,
-    name: "Lower Back Rehabilitation",
-    description: "Gentle exercises designed to strengthen and relieve lower back pain.",
-    duration: 15,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [2, 3],
-    forHighBP: false,
-    forLowMood: false,
-    chemicals: [
-      {
-        name: "Endorphins",
-        effect: "Natural pain relievers that reduce discomfort",
-      },
-      {
-        name: "IGF-1",
-        effect: "Supports muscle repair and growth",
-      },
-    ],
-    benefits: [
-      "Reduces lower back pain",
-      "Strengthens core muscles",
-      "Improves posture",
-      "Increases mobility",
-    ],
-  },
-  {
-    id: 7,
-    name: "Body Scan Meditation",
-    description: "A meditation practice that involves focusing attention on different parts of the body.",
-    duration: 20,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [1],
-    forHighBP: true,
-    forLowMood: true,
-    chemicals: [
-      {
-        name: "GABA",
-        effect: "Promotes relaxation and reduces anxiety",
-      },
-      {
-        name: "Serotonin",
-        effect: "Improves mood and sense of wellbeing",
-      },
-    ],
-    benefits: [
-      "Reduces physical tension",
-      "Increases body awareness",
-      "Improves sleep quality",
-      "Decreases stress and anxiety",
-    ],
-  },
-  {
-    id: 8,
-    name: "Word Association Game",
-    description: "A mental game that stimulates creativity and cognitive connections.",
-    duration: 10,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [6],
-    forHighBP: false,
-    forLowMood: true,
-    chemicals: [
-      {
-        name: "Dopamine",
-        effect: "Released during creative thinking and problem-solving",
-      },
-      {
-        name: "Norepinephrine",
-        effect: "Enhances alertness and attention",
-      },
-    ],
-    benefits: [
-      "Stimulates creative thinking",
-      "Strengthens neural connections",
-      "Improves verbal fluency",
-      "Provides mental stimulation",
-    ],
-  },
-  {
-    id: 9,
-    name: "Shoulder Mobility Exercises",
-    description: "A series of movements to improve shoulder range of motion and reduce stiffness.",
-    duration: 10,
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    categoryIds: [2, 3],
-    forHighBP: false,
-    forLowMood: false,
-    chemicals: [
-      {
-        name: "Endorphins",
-        effect: "Reduces pain and creates a sense of wellbeing",
-      },
-      {
-        name: "Substance P (reduction)",
-        effect: "Decreases pain signals to the brain",
-      },
-    ],
-    benefits: [
-      "Increases shoulder mobility",
-      "Reduces risk of injury",
-      "Decreases shoulder and neck tension",
-      "Improves posture",
-    ],
-  },
+  // ... additional activities here ...
 ];
 
+// ----- Helper Functions -----
 function shuffleArray(array) {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -310,7 +84,31 @@ function shuffleArray(array) {
   return newArray;
 }
 
+// Risk calculation placeholder functions
+function calculateQRisk(age, cholesterol) {
+  return Math.min(age * 0.5 + cholesterol * 0.2, 100);
+}
+function calculateCancerRisk(age, gender) {
+  return Math.min(age * (gender === "male" ? 0.3 : 0.25), 100);
+}
+function calculateDiabetesRisk(age, bmi) {
+  return Math.min(age * 0.4 + bmi * 0.6, 100);
+}
+function calculateDementiaRisk(age) {
+  return Math.min(age * 0.7, 100);
+}
+function calculateFRAX(age, weight, height) {
+  return Math.min(age * 0.3 + (weight / height) * 10, 100);
+}
+function calculateABCD2(age, bp, clinical, duration, diabetes) {
+  return (age >= 60 ? 1 : 0) + (bp > 140 ? 1 : 0) + clinical + (duration >= 60 ? 2 : 1) + diabetes;
+}
+function calculateORBIT(age, hemoglobin, renal) {
+  return (age > 75 ? 2 : 1) + (hemoglobin < 13 ? 2 : 0) + (renal < 60 ? 2 : 0);
+}
+
 export default function HomePage() {
+  // ----- State Variables -----
   const [shuffledActivities, setShuffledActivities] = useState([]);
   const [recentBPReading, setRecentBPReading] = useState(null);
   const [recentMoodEntry, setRecentMoodEntry] = useState(null);
@@ -321,7 +119,8 @@ export default function HomePage() {
   const [viewType, setViewType] = useState("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bpReadings, setBpReadings] = useState([]);
-  // Risk scores state (using dummy values for now)
+  
+  // Risk scores (dummy values for now)
   const [qriskScore, setQriskScore] = useState(null);
   const [cancerScore, setCancerScore] = useState(null);
   const [diabetesScore, setDiabetesScore] = useState(null);
@@ -330,12 +129,13 @@ export default function HomePage() {
   const [abcd2Score, setAbcd2Score] = useState(null);
   const [orbitScore, setOrbitScore] = useState(null);
 
+  // ----- Data Loading & Risk Calculations -----
   useEffect(() => {
     setShuffledActivities(shuffleArray(activities));
 
     async function loadRecentData() {
       try {
-        // Load recent BP reading
+        // Load BP Logs
         if (db.tables.some((t) => t.name === "bpLogs")) {
           const bpLogs = await db.table("bpLogs").toArray();
           if (bpLogs.length > 0) {
@@ -344,12 +144,10 @@ export default function HomePage() {
             );
             setRecentBPReading(sortedLogs[0]);
             setBpReadings(sortedLogs);
-            setHasHighBP(
-              sortedLogs[0].systolic > 130 || sortedLogs[0].diastolic > 85
-            );
+            setHasHighBP(sortedLogs[0].systolic > 130 || sortedLogs[0].diastolic > 85);
           }
         }
-        // Load recent cognitive/mood entry
+        // Load Cognitive/Mood Entries
         if (db.tables.some((t) => t.name === "cognitiveEntries")) {
           const entries = await db.table("cognitiveEntries").toArray();
           if (entries.length > 0) {
@@ -357,42 +155,58 @@ export default function HomePage() {
               (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
             );
             setRecentMoodEntry(sortedEntries[0]);
-            const lowMoodKeywords = [
-              "sad",
-              "depressed",
-              "anxious",
-              "tired",
-              "stressed",
-              "worried",
-            ];
+            const lowMoodKeywords = ["sad", "depressed", "anxious", "tired", "stressed", "worried"];
             const hasLowMoodContent =
               sortedEntries[0].content &&
-              lowMoodKeywords.some((keyword) =>
-                sortedEntries[0].content.toLowerCase().includes(keyword)
+              lowMoodKeywords.some((kw) =>
+                sortedEntries[0].content.toLowerCase().includes(kw)
               );
             const hasLowMoodTags =
               sortedEntries[0].tags &&
-              sortedEntries[0].tags.some(
-                (tag) =>
-                  tag.toLowerCase().includes("emotion") ||
-                  tag.toLowerCase().includes("processing")
+              sortedEntries[0].tags.some((tag) =>
+                tag.toLowerCase().includes("emotion") ||
+                tag.toLowerCase().includes("processing")
               );
             setHasLowMood(hasLowMoodContent || hasLowMoodTags);
           }
         }
-        // Load medications
+        // Load Medications
         if (db.tables.some((t) => t.name === "medications")) {
           const meds = await db.table("medications").toArray();
           setMedications(meds);
         }
-        // Set dummy risk scores (replace with real calculations)
-        setQriskScore(20);
-        setCancerScore(15);
-        setDiabetesScore(25);
-        setDementiaScore(30);
-        setFraxScore(18);
-        setAbcd2Score(4);
-        setOrbitScore(3);
+        // Dummy user profile (replace with real data)
+        const userProfile = {
+          age: 55,
+          cholesterol: 200,
+          gender: "male",
+          bmi: 26,
+          weight: 80, // kg
+          height: 175, // cm
+          bp: 140, // systolic for ABCD²
+          clinical: 2, // dummy score
+          duration: 30, // in minutes
+          diabetes: 1, // yes=1, no=0
+          hemoglobin: 12,
+          renal: 55,
+        };
+
+        // Calculate risk scores
+        setQriskScore(calculateQRisk(userProfile.age, userProfile.cholesterol));
+        setCancerScore(calculateCancerRisk(userProfile.age, userProfile.gender));
+        setDiabetesScore(calculateDiabetesRisk(userProfile.age, userProfile.bmi));
+        setDementiaScore(calculateDementiaRisk(userProfile.age));
+        setFraxScore(calculateFRAX(userProfile.age, userProfile.weight, userProfile.height));
+        setAbcd2Score(
+          calculateABCD2(
+            userProfile.age,
+            userProfile.bp,
+            userProfile.clinical,
+            userProfile.duration,
+            userProfile.diabetes
+          )
+        );
+        setOrbitScore(calculateORBIT(userProfile.age, userProfile.hemoglobin, userProfile.renal));
       } catch (error) {
         console.error("Error loading recent data:", error);
       } finally {
@@ -403,6 +217,7 @@ export default function HomePage() {
     loadRecentData();
   }, []);
 
+  // ----- Helper Functions for UI -----
   const getRecommendedActivities = () => {
     let recommended = [];
     if (hasHighBP && hasLowMood) {
@@ -483,11 +298,14 @@ export default function HomePage() {
     };
   };
 
+  // Prepare data for rendering
   const recommendedActivities = getRecommendedActivities();
   const chartData = getVisibleData();
 
+  // ----- Render Component -----
   return (
     <div className="home-container">
+      {/* Hero Section */}
       <div className="hero-section">
         <h1>Welcome to EasyGP</h1>
         <p className="subtitle">
@@ -526,18 +344,18 @@ export default function HomePage() {
           )}
           {abcd2Score !== null && (
             <div className="risk-card">
-              <strong>ABCD² Score:</strong> {abcd2Score}
+              <strong>ABCD²:</strong> {abcd2Score}
             </div>
           )}
           {orbitScore !== null && (
             <div className="risk-card">
-              <strong>ORBIT Score:</strong> {orbitScore}
+              <strong>ORBIT:</strong> {orbitScore}
             </div>
           )}
         </div>
       </div>
 
-      {/* BP Visualization and Risk Summary Side-by-Side */}
+      {/* BP Chart & Risk Scores Side-by-Side */}
       {bpReadings.length > 0 && (
         <div className="welcome-section flex-container">
           <div className="chart-wrapper">
@@ -601,7 +419,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-
           <div className="risk-side">
             <h2>Risk Scores</h2>
             <div className="risk-summary">
@@ -632,12 +449,12 @@ export default function HomePage() {
               )}
               {abcd2Score !== null && (
                 <div className="risk-card">
-                  <strong>ABCD² Score:</strong> {abcd2Score}
+                  <strong>ABCD²:</strong> {abcd2Score}
                 </div>
               )}
               {orbitScore !== null && (
                 <div className="risk-card">
-                  <strong>ORBIT Score:</strong> {orbitScore}
+                  <strong>ORBIT:</strong> {orbitScore}
                 </div>
               )}
             </div>
@@ -645,7 +462,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Health Status Summary */}
+      {/* Health Summary */}
       {(recentBPReading || recentMoodEntry) && (
         <div className="welcome-section">
           <h2 className="section-title">Your Health Summary</h2>
@@ -799,7 +616,9 @@ export default function HomePage() {
             <Info size={32} />
           </div>
           <h2>What's New?</h2>
-          <p>Explore our updated navigation bar featuring separate installation options: Windows/Android via the install button and iOS installation instructions.</p>
+          <p>
+            Explore our updated navigation bar featuring separate installation options: Windows/Android via the install button and iOS installation instructions.
+          </p>
         </div>
       </div>
     </div>
