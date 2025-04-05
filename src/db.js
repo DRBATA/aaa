@@ -1,77 +1,113 @@
-// db.js
+// db.js - Complete rewrite with robust initialization
 import Dexie from "dexie"
 
-// Create a new Dexie database named "StrepDatabase" (keeping your original name)
+// Create a new Dexie database named "StrepDatabase"
 export const db = new Dexie("StrepDatabase")
 
-// Define the schema for version 1 of your database.
-// Keeping your original schema exactly as it is
-db.version(1).stores({
+// Define all tables in one place for clarity
+const schema = {
   logs: "++id, startDate, observationDate, outcome",
-})
+  profile: "++id",
+  bpLogs: "++id, date, systolic, diastolic, pulse, mood, notes, medications, dateTime, timestamp",
+  cognitiveEntries:
+    "++id, timestamp, emotion, intensity, thoughtPattern, processingStage, situation, automaticThoughts, evidence, alternativeThoughts, actionPlan",
+}
 
-// Function to check and add new tables if needed
-async function ensureTablesExist() {
+// Initialize database with all tables
+db.version(1).stores(schema)
+
+// Function to verify and repair database if needed
+async function verifyDatabase() {
   try {
+    console.log("Verifying database structure...")
+
+    // First, try to open the database
     await db.open()
-    let currentVersion = db.verno
-    let needsUpdate = false
+    console.log("Database opened successfully with version", db.verno)
 
-    // Check if profile table exists
-    if (!db.tables.some((t) => t.name === "profile")) {
-      currentVersion++
-      db.version(currentVersion).stores({
-        profile: "++id",
-      })
-      needsUpdate = true
-    }
-
-    // Check if bpLogs table exists
-    if (!db.tables.some((t) => t.name === "bpLogs")) {
-      currentVersion++
-      db.version(currentVersion).stores({
-        bpLogs: "++id, date, systolic, diastolic, pulse, mood, notes, medications, dateTime, timestamp",
-      })
-      needsUpdate = true
-    }
-
-    // Check if cognitiveEntries table exists
-    if (!db.tables.some((t) => t.name === "cognitiveEntries")) {
-      currentVersion++
-      db.version(currentVersion).stores({
-        cognitiveEntries:
-          "++id, timestamp, emotion, intensity, thoughtPattern, processingStage, situation, automaticThoughts, evidence, alternativeThoughts, actionPlan",
-      })
-      needsUpdate = true
-    }
-
-    // If we need to update, reopen the database
-    if (needsUpdate) {
-      console.log("Updating database schema to version", currentVersion)
-      await db.close()
-      await db.open()
-    }
-
-    console.log("Database ready with version", db.verno)
-  } catch (error) {
-    console.error("Error ensuring tables exist:", error)
-
-    // If there's an error with the database version, try to recreate it
-    if (error.name === "VersionError") {
-      console.log("Attempting to recover from version error...")
-      try {
-        // Force delete and recreate the database
-        await Dexie.delete("StrepDatabase")
-        window.location.reload()
-      } catch (deleteError) {
-        console.error("Failed to recover from version error:", deleteError)
+    // Check if all required tables exist
+    const missingTables = []
+    for (const tableName of Object.keys(schema)) {
+      if (!db.tables.some((t) => t.name === tableName)) {
+        missingTables.push(tableName)
       }
+    }
+
+    // If tables are missing, we need to recreate the database
+    if (missingTables.length > 0) {
+      console.warn("Missing tables detected:", missingTables)
+      console.log("Attempting to recreate database structure...")
+
+      // Close the database
+      db.close()
+
+      // Delete the database to start fresh
+      await Dexie.delete("StrepDatabase")
+
+      // Create a new database with all tables
+      const newDb = new Dexie("StrepDatabase")
+      newDb.version(1).stores(schema)
+
+      // Open the new database
+      await newDb.open()
+
+      // Replace the global db object
+      Object.assign(db, newDb)
+
+      console.log("Database recreated successfully with all tables")
+
+      // Return true to indicate the database was recreated
+      return true
+    }
+
+    console.log("All required tables exist")
+    return false
+  } catch (error) {
+    console.error("Error verifying database:", error)
+
+    // If there's a version error or other critical error, try to recreate the database
+    try {
+      console.log("Attempting to recover from database error...")
+
+      // Close the database if it's open
+      if (db.isOpen()) {
+        db.close()
+      }
+
+      // Delete the database
+      await Dexie.delete("StrepDatabase")
+
+      // Create a new database with all tables
+      const newDb = new Dexie("StrepDatabase")
+      newDb.version(1).stores(schema)
+
+      // Open the new database
+      await newDb.open()
+
+      // Replace the global db object
+      Object.assign(db, newDb)
+
+      console.log("Database recovered successfully")
+      return true
+    } catch (recoveryError) {
+      console.error("Failed to recover database:", recoveryError)
+      throw recoveryError
     }
   }
 }
 
-// Run the check when the app starts
-ensureTablesExist()
+// Initialize the database when the module is imported
+verifyDatabase().then((wasRecreated) => {
+  if (wasRecreated) {
+    // If the database was recreated, we might want to reload the page
+    // to ensure all components use the new database structure
+    if (typeof window !== "undefined") {
+      console.log("Reloading page to use new database structure")
+      // Uncomment the line below if you want automatic reload
+      // window.location.reload();
+    }
+  }
+})
 
 export default db
 

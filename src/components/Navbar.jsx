@@ -1,82 +1,95 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Download, Home, ClipboardList, PenToolIcon as Tool, Book, Smartphone, Grid2x2, Apple, Upload, Database, Brain } from 'lucide-react';
-import phiLogo from "/src/assets/phi-logo.png";
-import { db } from "../db"; // Import your existing Dexie db
+"use client"
+
+import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
+import {
+  Download,
+  Home,
+  ClipboardList,
+  PenToolIcon as Tool,
+  Book,
+  Smartphone,
+  Grid2x2,
+  Apple,
+  Upload,
+  Database,
+} from "lucide-react"
+import phiLogo from "/src/assets/phi-logo.png"
+import { db } from "../db" // Import your existing Dexie db
 
 export default function Navbar() {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [installText, setInstallText] = useState("Install");
-  const [isImporting, setIsImporting] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [showDataMenu, setShowDataMenu] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [installText, setInstallText] = useState("Install")
+  const [isImporting, setIsImporting] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [showDataMenu, setShowDataMenu] = useState(false)
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setInstallText("Install");
-    };
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setInstallText("Install")
+    }
 
     const handleControllerChange = () => {
-      setInstallText("Update");
-    };
+      setInstallText("Update")
+    }
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    navigator.serviceWorker?.addEventListener("controllerchange", handleControllerChange);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+    navigator.serviceWorker?.addEventListener("controllerchange", handleControllerChange)
 
     // Close data menu when clicking outside
     const handleClickOutside = (e) => {
       if (showDataMenu && !e.target.closest(".data-management")) {
-        setShowDataMenu(false);
+        setShowDataMenu(false)
       }
-    };
+    }
 
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("click", handleClickOutside)
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      navigator.serviceWorker?.removeEventListener("controllerchange", handleControllerChange);
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [showDataMenu]);
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
+      navigator.serviceWorker?.removeEventListener("controllerchange", handleControllerChange)
+      document.removeEventListener("click", handleClickOutside)
+    }
+  }, [showDataMenu])
 
   const handleInstallClick = () => {
     if (installText === "Update") {
-      window.location.reload();
+      window.location.reload()
     } else if (deferredPrompt) {
-      deferredPrompt.prompt();
+      deferredPrompt.prompt()
       deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === "accepted") {
-          console.log("User installed the app");
+          console.log("User installed the app")
         }
-        setDeferredPrompt(null);
-      });
+        setDeferredPrompt(null)
+      })
     }
-  };
+  }
 
   const handleIOSInstallClick = () => {
     alert(
       "To install this app on your iOS device:\n\n1. Open Safari.\n2. Tap the Share icon.\n3. Select 'Add to Home Screen'.",
-    );
-  };
+    )
+  }
 
   // Export data function
   const handleExportData = async () => {
     try {
-      setIsExporting(true);
-      setShowDataMenu(false);
+      setIsExporting(true)
+      setShowDataMenu(false)
 
       // Get all data from all tables
-      const logs = await db.logs.toArray();
-      const profile = await db.table("profile").toArray();
-      const bpLogs = (await db.table("bpLogs")?.toArray()) || [];
-      const cognitiveEntries = (await db.table("cognitiveEntries")?.toArray()) || [];
+      const logs = await db.logs.toArray()
+      const profile = await db.table("profile").toArray()
+      const bpLogs = (await db.table("bpLogs")?.toArray()) || []
+      const cognitiveEntries = (await db.table("cognitiveEntries")?.toArray()) || []
 
       if (logs.length === 0 && profile.length === 0 && bpLogs.length === 0 && cognitiveEntries.length === 0) {
-        alert("No data to export.");
-        setIsExporting(false);
-        return;
+        alert("No data to export.")
+        setIsExporting(false)
+        return
       }
 
       // Prepare export data
@@ -87,142 +100,130 @@ export default function Navbar() {
         cognitiveEntries,
         exportDate: new Date().toISOString(),
         appVersion: "1.0.0", // You can update this with your app version
-      };
-
-      const defaultFileName = `EasyGP-Export-${new Date().toISOString().slice(0, 10)}.json`;
-      const fileName = prompt("Enter file name for export:", defaultFileName);
-      if (!fileName) {
-        setIsExporting(false);
-        return;
       }
 
-      const jsonString = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([jsonString], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName.endsWith(".json") ? fileName : fileName + ".json";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      alert("Data exported successfully!");
+      const defaultFileName = `EasyGP-Export-${new Date().toISOString().slice(0, 10)}.json`
+      const fileName = prompt("Enter file name for export:", defaultFileName)
+      if (!fileName) {
+        setIsExporting(false)
+        return
+      }
+
+      const jsonString = JSON.stringify(exportData, null, 2)
+      const blob = new Blob([jsonString], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = fileName.endsWith(".json") ? fileName : fileName + ".json"
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      alert("Data exported successfully!")
     } catch (error) {
-      console.error("Export error:", error);
-      alert("Error exporting data: " + error.message);
+      console.error("Export error:", error)
+      alert("Error exporting data: " + error.message)
     } finally {
-      setIsExporting(false);
+      setIsExporting(false)
     }
-  };
+  }
 
   // Import data function - MERGE with existing data
   const handleImportData = async (event) => {
     try {
-      const file = event.target.files[0];
-      if (!file) return;
+      const file = event.target.files[0]
+      if (!file) return
 
-      setIsImporting(true);
-      setShowDataMenu(false);
+      setIsImporting(true)
+      setShowDataMenu(false)
 
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = async (e) => {
         try {
-          const importedData = JSON.parse(e.target.result);
-          let addedCount = 0;
+          const importedData = JSON.parse(e.target.result)
+          let addedCount = 0
 
           // Process logs
           if (importedData.logs && importedData.logs.length > 0) {
             await db.transaction("rw", db.logs, async () => {
               for (const entry of importedData.logs) {
                 // Check if an entry with the same observationDate exists
-                const existingEntry = await db.logs.where("observationDate").equals(entry.observationDate).first();
+                const existingEntry = await db.logs.where("observationDate").equals(entry.observationDate).first()
 
                 if (!existingEntry) {
                   // Add only if it doesn't exist
-                  await db.logs.add(entry);
-                  addedCount++;
+                  await db.logs.add(entry)
+                  addedCount++
                 }
               }
-            });
+            })
           }
 
           // Process profile - only add if no profile exists
           if (importedData.profile && importedData.profile.length > 0) {
-            const existingProfile = await db.table("profile").toArray();
+            const existingProfile = await db.table("profile").toArray()
             if (existingProfile.length === 0) {
-              await db.table("profile").add(importedData.profile[0]);
-              addedCount++;
+              await db.table("profile").add(importedData.profile[0])
+              addedCount++
             }
           }
 
           // Process BP logs
           if (importedData.bpLogs && importedData.bpLogs.length > 0) {
-            // Ensure bpLogs table exists
-            if (!db.tables.some((t) => t.name === "bpLogs")) {
-              db.version(db.verno + 1).stores({
-                bpLogs: "++id, date, systolic, diastolic, pulse, mood",
-              });
-              await db.open();
-            }
-
             await db.transaction("rw", db.table("bpLogs"), async () => {
               for (const entry of importedData.bpLogs) {
                 // Check if an entry with the same date exists
-                const existingEntry = await db.table("bpLogs").where("date").equals(entry.date).first();
+                const existingEntry = await db.table("bpLogs").where("date").equals(entry.date).first()
 
                 if (!existingEntry) {
                   // Add only if it doesn't exist
-                  await db.table("bpLogs").add(entry);
-                  addedCount++;
+                  await db.table("bpLogs").add(entry)
+                  addedCount++
                 }
               }
-            });
+            })
           }
 
           // Process cognitive entries
           if (importedData.cognitiveEntries && importedData.cognitiveEntries.length > 0) {
-            // Ensure cognitiveEntries table exists
-            if (!db.tables.some((t) => t.name === "cognitiveEntries")) {
-              db.version(db.verno + 1).stores({
-                cognitiveEntries: "++id, timestamp, emotion, intensity, thoughtPattern, processingStage",
-              });
-              await db.open();
-            }
-
             await db.transaction("rw", db.table("cognitiveEntries"), async () => {
               for (const entry of importedData.cognitiveEntries) {
                 // Check if an entry with the same timestamp exists
-                const existingEntry = await db.table("cognitiveEntries").where("timestamp").equals(entry.timestamp).first();
+                const existingEntry = await db
+                  .table("cognitiveEntries")
+                  .where("timestamp")
+                  .equals(entry.timestamp)
+                  .first()
 
                 if (!existingEntry) {
                   // Add only if it doesn't exist
-                  await db.table("cognitiveEntries").add(entry);
-                  addedCount++;
+                  await db.table("cognitiveEntries").add(entry)
+                  addedCount++
                 }
               }
-            });
+            })
           }
 
-          alert(`Import successful! Added ${addedCount} new entries.`);
+          alert(`Import successful! Added ${addedCount} new entries.`)
         } catch (parseError) {
-          console.error("Parse error:", parseError);
-          alert("Error parsing import file: " + parseError.message);
+          console.error("Parse error:", parseError)
+          alert("Error parsing import file: " + parseError.message)
         } finally {
-          setIsImporting(false);
+          setIsImporting(false)
           // Reset the file input
-          event.target.value = null;
+          event.target.value = null
         }
-      };
+      }
 
-      reader.readAsText(file);
+      reader.readAsText(file)
     } catch (error) {
-      console.error("Import error:", error);
-      alert("Error importing data: " + error.message);
-      setIsImporting(false);
+      console.error("Import error:", error)
+      alert("Error importing data: " + error.message)
+      setIsImporting(false)
       // Reset the file input
-      if (event.target) event.target.value = null;
+      if (event.target) event.target.value = null
     }
-  };
+  }
 
   return (
     <nav className="navbar">
@@ -245,7 +246,7 @@ export default function Navbar() {
           <ClipboardList className="icon" size={18} aria-hidden="true" />
           <span>Infection Calculator</span>
         </Link>
-        <Link to="/book-now" className="nav-link">
+        <Link to="/health-profile" className="nav-link">
           <Tool className="icon" size={18} aria-hidden="true" />
           <span>Health Profile</span>
         </Link>
@@ -253,18 +254,14 @@ export default function Navbar() {
           <Database className="icon" size={18} aria-hidden="true" />
           <span>BP & Mood</span>
         </Link>
-        <Link to="/cognitive-journal" className="nav-link">
-          <Brain className="icon" size={18} aria-hidden="true" />
-          <span>Cognitive Journal</span>
-        </Link>
 
         {/* Data Management Dropdown */}
         <div className="data-management">
           <button
             className="nav-link"
             onClick={(e) => {
-              e.stopPropagation();
-              setShowDataMenu(!showDataMenu);
+              e.stopPropagation()
+              setShowDataMenu(!showDataMenu)
             }}
           >
             <Upload className="icon" size={18} aria-hidden="true" />
@@ -311,5 +308,6 @@ export default function Navbar() {
         </button>
       </div>
     </nav>
-  );
+  )
 }
+
