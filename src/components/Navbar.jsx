@@ -13,6 +13,7 @@ import {
   Apple,
   Upload,
   Database,
+  Brain,
 } from "lucide-react"
 import phiLogo from "/src/assets/phi-logo.png"
 import { db } from "../db" // Import your existing Dexie db
@@ -253,6 +254,10 @@ export default function Navbar() {
         <Link to="/bp-tracker" className="nav-link">
           <Database className="icon" size={18} aria-hidden="true" />
           <span>BP & Mood</span>
+        </Link>
+        <Link to="/cognitive-journal" className="nav-link">
+          <Brain className="icon" size={18} aria-hidden="true" />
+          <span>Cognitive Journal</span>
         </Link>
 
         {/* Data Management Dropdown */}

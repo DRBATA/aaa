@@ -13,7 +13,6 @@ export default function BPTracker() {
     systolic: "",
     diastolic: "",
     pulse: "",
-    mood: "",
     notes: "",
     medications: [],
   })
@@ -27,6 +26,7 @@ export default function BPTracker() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedReading, setSelectedReading] = useState(null)
   const containerRef = useRef(null)
+  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState("all")
 
   // Ensure the bpLogs table exists
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function BPTracker() {
           console.log("Creating bpLogs table")
           // Create the table
           db.version(db.verno + 1).stores({
-            bpLogs: "++id, date, systolic, diastolic, pulse, mood, notes, medications, dateTime, timestamp",
+            bpLogs: "++id, date, systolic, diastolic, pulse, notes, medications, dateTime, timestamp",
           })
 
           // Open the database with the new schema
@@ -129,7 +129,6 @@ export default function BPTracker() {
         systolic: "",
         diastolic: "",
         pulse: "",
-        mood: "",
         notes: "",
         medications: [],
       })
@@ -160,7 +159,6 @@ export default function BPTracker() {
       systolic: log.systolic,
       diastolic: log.diastolic,
       pulse: log.pulse,
-      mood: log.mood,
       notes: log.notes || "",
       medications: log.medications || [],
     })
@@ -174,31 +172,6 @@ export default function BPTracker() {
   const formatDate = (dateString) => {
     const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" }
     return new Date(dateString).toLocaleDateString(undefined, options)
-  }
-
-  // Mood options
-  const moodOptions = ["Great", "Good", "Okay", "Stressed", "Anxious", "Tired", "Sick"]
-
-  // Get emoji for mood
-  const getMoodEmoji = (mood) => {
-    switch (mood) {
-      case "Great":
-        return "😊"
-      case "Good":
-        return "🙂"
-      case "Okay":
-        return "😐"
-      case "Stressed":
-        return "😓"
-      case "Anxious":
-        return "😰"
-      case "Tired":
-        return "😴"
-      case "Sick":
-        return "🤒"
-      default:
-        return "😐"
-    }
   }
 
   // Get BP status
@@ -250,19 +223,30 @@ export default function BPTracker() {
       start.setDate(start.getDate() - 7)
     }
 
-    return bpLogs
-      .filter((log) => {
-        const logDate = new Date(log.date)
-        return logDate >= start && logDate <= end
+    let filteredLogs = bpLogs.filter((log) => {
+      const logDate = new Date(log.date)
+      return logDate >= start && logDate <= end
+    })
+
+    // Filter by time of day
+    if (selectedTimeOfDay !== "all") {
+      filteredLogs = filteredLogs.filter((log) => {
+        if (!log.time) return true
+        const hour = Number.parseInt(log.time.split(":")[0])
+        if (selectedTimeOfDay === "morning" && hour >= 5 && hour < 12) return true
+        if (selectedTimeOfDay === "afternoon" && hour >= 12 && hour < 17) return true
+        if (selectedTimeOfDay === "evening" && (hour >= 17 || hour < 5)) return true
+        return false
       })
-      .map((log) => ({
-        date: new Date(log.date).toLocaleDateString(),
-        systolic: Number.parseInt(log.systolic),
-        diastolic: Number.parseInt(log.diastolic),
-        pulse: Number.parseInt(log.pulse),
-        mood: log.mood,
-        id: log.id,
-      }))
+    }
+
+    return filteredLogs.map((log) => ({
+      date: new Date(log.date).toLocaleDateString(),
+      systolic: Number.parseInt(log.systolic),
+      diastolic: Number.parseInt(log.diastolic),
+      pulse: Number.parseInt(log.pulse),
+      id: log.id,
+    }))
   }
 
   // Prepare chart data
@@ -271,10 +255,13 @@ export default function BPTracker() {
   return (
     <div className="content">
       <div className="bp-tracker-container">
-        <h1>BP & Mood Tracker</h1>
+        <h1>BP Tracker</h1>
 
         {/* Chart View */}
-        <div className="welcome-section">
+        <div
+          className="welcome-section"
+          style={{ background: "linear-gradient(to bottom, #4AC29A, #4ECDC4, #F7D794)" }}
+        >
           <div className="flex items-center justify-between mb-4">
             <button className="glassmorphic-btn p-2" onClick={() => handleTimeShift("backward")}>
               <ChevronLeft className="h-4 w-4" />
@@ -286,6 +273,17 @@ export default function BPTracker() {
               <select value={viewType} onChange={(e) => setViewType(e.target.value)} className="glassmorphic-select">
                 <option value="week">Week</option>
                 <option value="month">Month</option>
+              </select>
+
+              <select
+                value={selectedTimeOfDay}
+                onChange={(e) => setSelectedTimeOfDay(e.target.value)}
+                className="glassmorphic-select"
+              >
+                <option value="all">All Times</option>
+                <option value="morning">Morning (5-12)</option>
+                <option value="afternoon">Afternoon (12-17)</option>
+                <option value="evening">Evening (17-5)</option>
               </select>
             </div>
 
@@ -312,27 +310,11 @@ export default function BPTracker() {
                 />
                 <ReferenceLine y={120} stroke="rgba(52, 211, 153, 0.3)" strokeDasharray="3 3" />
                 <ReferenceLine y={130} stroke="rgba(251, 191, 36, 0.3)" strokeDasharray="3 3" />
-                <Line type="monotone" dataKey="systolic" stroke="#ef4444" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="systolic" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="pulse" stroke="#10b981" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
-
-            {/* Mood Emojis */}
-            {chartData.map((reading) => (
-              <div
-                key={reading.id}
-                className="absolute cursor-pointer"
-                style={{
-                  left: `${(chartData.indexOf(reading) / (chartData.length - 1 || 1)) * 100}%`,
-                  bottom: "10px",
-                  transform: "translateX(-50%)",
-                }}
-                onClick={() => setSelectedReading(bpLogs.find((log) => log.id === reading.id))}
-              >
-                <div className="text-2xl">{getMoodEmoji(reading.mood)}</div>
-              </div>
-            ))}
 
             {/* Medication Timeline */}
             <div className="absolute bottom-0 left-0 right-0 h-6 flex">
@@ -422,22 +404,6 @@ export default function BPTracker() {
           </div>
 
           <div className="form-group">
-            <label>Mood</label>
-            <div className="mood-selector">
-              {moodOptions.map((mood) => (
-                <button
-                  key={mood}
-                  type="button"
-                  className={`mood-option ${formData.mood === mood ? "selected" : ""}`}
-                  onClick={() => setFormData((prev) => ({ ...prev, mood }))}
-                >
-                  {getMoodEmoji(mood)} {mood}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="form-group">
             <label>Notes</label>
             <textarea
               name="notes"
@@ -479,7 +445,6 @@ export default function BPTracker() {
                     systolic: "",
                     diastolic: "",
                     pulse: "",
-                    mood: "",
                     notes: "",
                     medications: [],
                   })
@@ -529,12 +494,6 @@ export default function BPTracker() {
                       </div>
                     )}
                   </div>
-
-                  {log.mood && (
-                    <div className="bp-entry-mood">
-                      {getMoodEmoji(log.mood)} {log.mood}
-                    </div>
-                  )}
 
                   <div className="bp-entry-actions">
                     <button className="bp-entry-action" onClick={() => handleEdit(log)} aria-label="Edit entry">
@@ -586,12 +545,7 @@ export default function BPTracker() {
               </div>
 
               <div>
-                <h3>Mood</h3>
-                <p className="text-2xl">
-                  {getMoodEmoji(selectedReading.mood)} {selectedReading.mood}
-                </p>
-
-                <h3 className="mt-4">Notes</h3>
+                <h3>Notes</h3>
                 <p>{selectedReading.notes || "No notes"}</p>
 
                 <h3 className="mt-4">Medications Taken</h3>
