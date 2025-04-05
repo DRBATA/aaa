@@ -7,7 +7,7 @@ import BookNow from "./pages/BookNow";
 import BPTracker from "./pages/BPTracker";
 import CognitiveJournal from "./pages/CognitiveJournal";
 import Navbar from "./components/Navbar";
-import "./App.css";
+
 
 export default function App() {
   return (
