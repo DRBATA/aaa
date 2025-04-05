@@ -15,8 +15,11 @@ import {
   ThumbsDown,
   Smile,
   Frown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { db } from "../db"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
 
 // Wellness activities data
 const categories = [
@@ -301,6 +304,10 @@ export default function HomePage() {
   const [hasHighBP, setHasHighBP] = useState(false)
   const [hasLowMood, setHasLowMood] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [medications, setMedications] = useState([])
+  const [viewType, setViewType] = useState("month")
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [bpReadings, setBpReadings] = useState([])
 
   useEffect(() => {
     // Shuffle activities on component mount
@@ -316,6 +323,7 @@ export default function HomePage() {
             // Sort by date and get most recent
             const sortedLogs = bpLogs.sort((a, b) => new Date(b.date) - new Date(a.date))
             setRecentBPReading(sortedLogs[0])
+            setBpReadings(sortedLogs)
 
             // Check if BP is high (systolic > 130 or diastolic > 85)
             setHasHighBP(sortedLogs[0].systolic > 130 || sortedLogs[0].diastolic > 85)
@@ -344,6 +352,12 @@ export default function HomePage() {
 
             setHasLowMood(hasLowMoodContent || hasLowMoodTags)
           }
+        }
+
+        // Load medications
+        if (db.tables.some((t) => t.name === "medications")) {
+          const meds = await db.table("medications").toArray()
+          setMedications(meds)
         }
       } catch (error) {
         console.error("Error loading recent data:", error)
@@ -374,7 +388,87 @@ export default function HomePage() {
     return shuffleArray(recommended).slice(0, 3)
   }
 
+  // Get date range for chart
+  const getDateRange = () => {
+    const start = new Date(currentDate)
+    const end = new Date(currentDate)
+
+    if (viewType === "month") {
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
+    } else {
+      start.setDate(start.getDate() - 7)
+    }
+
+    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+  }
+
+  // Handle time shift
+  const handleTimeShift = (direction) => {
+    const newDate = new Date(currentDate)
+    if (viewType === "month") {
+      newDate.setMonth(newDate.getMonth() + (direction === "forward" ? 1 : -1))
+    } else {
+      newDate.setDate(newDate.getDate() + (direction === "forward" ? 7 : -7))
+    }
+    setCurrentDate(newDate)
+  }
+
+  // Get visible data for chart
+  const getVisibleData = () => {
+    const start = new Date(currentDate)
+    const end = new Date(currentDate)
+
+    if (viewType === "month") {
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
+    } else {
+      start.setDate(start.getDate() - 7)
+    }
+
+    return bpReadings
+      .filter((reading) => {
+        const readingDate = new Date(reading.date)
+        return readingDate >= start && readingDate <= end
+      })
+      .map((reading) => ({
+        date: new Date(reading.date).toLocaleDateString(),
+        systolic: Number(reading.systolic),
+        diastolic: Number(reading.diastolic),
+        pulse: Number(reading.pulse || 0),
+        id: reading.id,
+      }))
+  }
+
+  // Get medication position for timeline
+  const getMedicationPosition = (medication) => {
+    if (!medication.startDate) return { start: 0, end: 100 }
+
+    const start = new Date(currentDate)
+    const end = new Date(currentDate)
+
+    if (viewType === "month") {
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
+    } else {
+      start.setDate(start.getDate() - 7)
+    }
+
+    const medStart = new Date(medication.startDate)
+    const medEnd = medication.endDate ? new Date(medication.endDate) : new Date()
+
+    const totalDays = (end - start) / (1000 * 60 * 60 * 24)
+    const startOffset = Math.max(0, (medStart - start) / (1000 * 60 * 60 * 24))
+    const endOffset = Math.min(totalDays, (medEnd - start) / (1000 * 60 * 60 * 24))
+
+    return {
+      start: (startOffset / totalDays) * 100,
+      end: (endOffset / totalDays) * 100,
+    }
+  }
+
   const recommendedActivities = getRecommendedActivities()
+  const chartData = getVisibleData()
 
   return (
     <div className="home-container">
@@ -385,6 +479,78 @@ export default function HomePage() {
           treatment guidance. Explore our new features:
         </p>
       </div>
+
+      {/* BP Visualization */}
+      {bpReadings.length > 0 && (
+        <div className="welcome-section mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <button className="glassmorphic-btn p-2" onClick={() => handleTimeShift("backward")}>
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-4">
+              <span className="bg-white/20 px-4 py-2 rounded-full">{getDateRange()}</span>
+
+              <select value={viewType} onChange={(e) => setViewType(e.target.value)} className="glassmorphic-select">
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+              </select>
+            </div>
+
+            <button className="glassmorphic-btn p-2" onClick={() => handleTimeShift("forward")}>
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="relative h-[400px] bg-white/5 rounded-lg overflow-hidden p-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                <XAxis dataKey="date" stroke="rgba(255, 255, 255, 0.5)" />
+                <YAxis stroke="rgba(255, 255, 255, 0.5)" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                    border: "none",
+                    borderRadius: "8px",
+                    backdropFilter: "blur(10px)",
+                  }}
+                  labelStyle={{ color: "white" }}
+                  itemStyle={{ color: "white" }}
+                />
+                <ReferenceLine y={120} stroke="rgba(52, 211, 153, 0.3)" strokeDasharray="3 3" />
+                <ReferenceLine y={130} stroke="rgba(251, 191, 36, 0.3)" strokeDasharray="3 3" />
+                <Line type="monotone" dataKey="systolic" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="pulse" stroke="#10b981" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+
+            {/* Medication Timeline */}
+            <div className="absolute bottom-0 left-0 right-0 h-12 flex items-end">
+              {medications.map((med, index) => {
+                const position = getMedicationPosition(med)
+                return (
+                  <div
+                    key={med.id}
+                    className="h-6 absolute"
+                    style={{
+                      left: `${position.start}%`,
+                      width: `${position.end - position.start}%`,
+                      bottom: index * 8 + "px",
+                      backgroundColor: `hsl(${index * 60}, 70%, 50%)`,
+                      borderRadius: "2px",
+                    }}
+                    title={`${med.name} ${med.dosage}`}
+                  >
+                    <span className="text-xs whitespace-nowrap overflow-hidden text-white px-1">{med.name}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Health Status Summary */}
       {(recentBPReading || recentMoodEntry) && (

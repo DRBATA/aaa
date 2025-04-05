@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { db } from "../db"
-import { Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
+import { Edit, Trash2 } from "lucide-react"
 
 export default function BPTracker() {
   // Form state
@@ -22,11 +21,7 @@ export default function BPTracker() {
   const [isLoading, setIsLoading] = useState(true)
   const [editingId, setEditingId] = useState(null)
   const [medications, setMedications] = useState([])
-  const [viewType, setViewType] = useState("week")
-  const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedReading, setSelectedReading] = useState(null)
-  const containerRef = useRef(null)
-  const [selectedTimeOfDay, setSelectedTimeOfDay] = useState("all")
 
   // Ensure the bpLogs table exists
   useEffect(() => {
@@ -64,6 +59,15 @@ export default function BPTracker() {
           const profile = await db.table("profile").toArray()
           if (profile && profile.length > 0 && profile[0].medications) {
             setMedications(profile[0].medications.filter((med) => med.trim() !== ""))
+          }
+
+          // Also check medications table if it exists
+          if (db.tables.some((t) => t.name === "medications")) {
+            const meds = await db.table("medications").toArray()
+            if (meds && meds.length > 0) {
+              const medNames = meds.map((m) => m.name)
+              setMedications((prev) => [...new Set([...prev, ...medNames])])
+            }
           }
         } catch (profileError) {
           console.error("Error loading profile:", profileError)
@@ -185,157 +189,10 @@ export default function BPTracker() {
     }
   }
 
-  // Get date range for chart
-  const getDateRange = () => {
-    const start = new Date(currentDate)
-    const end = new Date(currentDate)
-
-    if (viewType === "month") {
-      start.setDate(1)
-      end.setMonth(end.getMonth() + 1, 0)
-    } else {
-      start.setDate(start.getDate() - 7)
-    }
-
-    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
-  }
-
-  // Handle time shift
-  const handleTimeShift = (direction) => {
-    const newDate = new Date(currentDate)
-    if (viewType === "month") {
-      newDate.setMonth(newDate.getMonth() + (direction === "forward" ? 1 : -1))
-    } else {
-      newDate.setDate(newDate.getDate() + (direction === "forward" ? 7 : -7))
-    }
-    setCurrentDate(newDate)
-  }
-
-  // Get visible data for chart
-  const getVisibleData = () => {
-    const start = new Date(currentDate)
-    const end = new Date(currentDate)
-
-    if (viewType === "month") {
-      start.setDate(1)
-      end.setMonth(end.getMonth() + 1, 0)
-    } else {
-      start.setDate(start.getDate() - 7)
-    }
-
-    let filteredLogs = bpLogs.filter((log) => {
-      const logDate = new Date(log.date)
-      return logDate >= start && logDate <= end
-    })
-
-    // Filter by time of day
-    if (selectedTimeOfDay !== "all") {
-      filteredLogs = filteredLogs.filter((log) => {
-        if (!log.time) return true
-        const hour = Number.parseInt(log.time.split(":")[0])
-        if (selectedTimeOfDay === "morning" && hour >= 5 && hour < 12) return true
-        if (selectedTimeOfDay === "afternoon" && hour >= 12 && hour < 17) return true
-        if (selectedTimeOfDay === "evening" && (hour >= 17 || hour < 5)) return true
-        return false
-      })
-    }
-
-    return filteredLogs.map((log) => ({
-      date: new Date(log.date).toLocaleDateString(),
-      systolic: Number.parseInt(log.systolic),
-      diastolic: Number.parseInt(log.diastolic),
-      pulse: Number.parseInt(log.pulse),
-      id: log.id,
-    }))
-  }
-
-  // Prepare chart data
-  const chartData = getVisibleData()
-
   return (
     <div className="content">
       <div className="bp-tracker-container">
         <h1>BP Tracker</h1>
-
-        {/* Chart View */}
-        <div
-          className="welcome-section"
-          style={{ background: "linear-gradient(to bottom, #4AC29A, #4ECDC4, #F7D794)" }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <button className="glassmorphic-btn p-2" onClick={() => handleTimeShift("backward")}>
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            <div className="flex items-center gap-4">
-              <span className="bg-white/20 px-4 py-2 rounded-full">{getDateRange()}</span>
-
-              <select value={viewType} onChange={(e) => setViewType(e.target.value)} className="glassmorphic-select">
-                <option value="week">Week</option>
-                <option value="month">Month</option>
-              </select>
-
-              <select
-                value={selectedTimeOfDay}
-                onChange={(e) => setSelectedTimeOfDay(e.target.value)}
-                className="glassmorphic-select"
-              >
-                <option value="all">All Times</option>
-                <option value="morning">Morning (5-12)</option>
-                <option value="afternoon">Afternoon (12-17)</option>
-                <option value="evening">Evening (17-5)</option>
-              </select>
-            </div>
-
-            <button className="glassmorphic-btn p-2" onClick={() => handleTimeShift("forward")}>
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div ref={containerRef} className="relative h-[400px] bg-white/5 rounded-lg overflow-hidden p-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                <XAxis dataKey="date" stroke="rgba(255, 255, 255, 0.5)" />
-                <YAxis stroke="rgba(255, 255, 255, 0.5)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                    border: "none",
-                    borderRadius: "8px",
-                    backdropFilter: "blur(10px)",
-                  }}
-                  labelStyle={{ color: "white" }}
-                  itemStyle={{ color: "white" }}
-                />
-                <ReferenceLine y={120} stroke="rgba(52, 211, 153, 0.3)" strokeDasharray="3 3" />
-                <ReferenceLine y={130} stroke="rgba(251, 191, 36, 0.3)" strokeDasharray="3 3" />
-                <Line type="monotone" dataKey="systolic" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="diastolic" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="pulse" stroke="#10b981" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-
-            {/* Medication Timeline */}
-            <div className="absolute bottom-0 left-0 right-0 h-6 flex">
-              {medications.map((med, index) => (
-                <div
-                  key={med}
-                  className="h-4 mx-1"
-                  style={{
-                    backgroundColor: `hsl(${index * 60}, 70%, 50%)`,
-                    width: "10px",
-                    borderRadius: "2px",
-                  }}
-                >
-                  <span className="absolute left-0 bottom-6 text-xs whitespace-nowrap overflow-hidden opacity-70">
-                    {med}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* BP Entry Form */}
         <form onSubmit={handleSubmit} className="welcome-section">
@@ -512,56 +369,6 @@ export default function BPTracker() {
             })
           )}
         </div>
-
-        {/* Selected Reading Details */}
-        {selectedReading && (
-          <div className="welcome-section">
-            <div className="flex justify-between items-center">
-              <h2>Reading Details</h2>
-              <button className="glassmorphic-btn p-2" onClick={() => setSelectedReading(null)}>
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <h3>Date & Time</h3>
-                <p>
-                  {formatDate(selectedReading.date)} {selectedReading.time}
-                </p>
-
-                <h3 className="mt-4">Blood Pressure</h3>
-                <div className="text-2xl">
-                  <span style={{ color: getBPStatus(selectedReading.systolic, selectedReading.diastolic).color }}>
-                    {selectedReading.systolic}/{selectedReading.diastolic} mmHg
-                  </span>
-                </div>
-
-                <h3 className="mt-4">Pulse</h3>
-                <p>{selectedReading.pulse} bpm</p>
-
-                <h3 className="mt-4">Status</h3>
-                <p>{getBPStatus(selectedReading.systolic, selectedReading.diastolic).status}</p>
-              </div>
-
-              <div>
-                <h3>Notes</h3>
-                <p>{selectedReading.notes || "No notes"}</p>
-
-                <h3 className="mt-4">Medications Taken</h3>
-                {selectedReading.medications && selectedReading.medications.length > 0 ? (
-                  <ul>
-                    {selectedReading.medications.map((med) => (
-                      <li key={med}>{med}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>No medications recorded</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

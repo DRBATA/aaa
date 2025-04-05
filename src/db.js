@@ -8,9 +8,10 @@ export const db = new Dexie("StrepDatabase")
 const schema = {
   logs: "++id, startDate, observationDate, outcome",
   profile: "++id",
-  bpLogs: "++id, date, systolic, diastolic, pulse, mood, notes, medications, dateTime, timestamp",
+  bpLogs: "++id, date, systolic, diastolic, pulse, notes, medications, dateTime, timestamp",
   cognitiveEntries:
     "++id, timestamp, emotion, intensity, thoughtPattern, processingStage, situation, automaticThoughts, evidence, alternativeThoughts, actionPlan",
+  medications: "++id, name, dosage, frequency, timeToTake, startDate, endDate, sideEffects, notes"
 }
 
 // Initialize database with all tables
