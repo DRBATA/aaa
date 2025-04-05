@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import CognitiveTimelineGraph from "../components/ui/CognitiveTimelineGraph";
-import BPGraph from "../components/ui/BPGraph";
+import CognitiveTimelineGraph from "../components/CognitiveTimelineGraph";
+import BPGraph from "../components/BPGraph";
 
 export default function HomePage() {
   return (
