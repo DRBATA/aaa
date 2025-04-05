@@ -502,7 +502,7 @@ export default function HomePage() {
             </button>
           </div>
 
-          <div className="relative h-[400px] bg-white/5 rounded-lg overflow-hidden p-4">
+          <div className="chart-container">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 70 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
