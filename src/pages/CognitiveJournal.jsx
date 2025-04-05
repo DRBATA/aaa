@@ -28,6 +28,47 @@ export default function CognitiveJournal() {
     processingStage: "initial",
   })
 
+  // Ensure the cognitiveEntries table exists
+  useEffect(() => {
+    async function setupDatabase() {
+      try {
+        // Check if cognitiveEntries table exists
+        if (!db.tables.some((t) => t.name === "cognitiveEntries")) {
+          console.log("Creating cognitiveEntries table")
+          // Create the table
+          db.version(db.verno + 1).stores({
+            cognitiveEntries:
+              "++id, timestamp, emotion, intensity, thoughtPattern, processingStage, situation, automaticThoughts, evidence, alternativeThoughts, actionPlan",
+          })
+
+          // Open the database with the new schema
+          await db.open()
+          console.log("cognitiveEntries table created successfully")
+        }
+
+        // Now load entries
+        loadEntries()
+      } catch (error) {
+        console.error("Error setting up database:", error)
+        setIsLoading(false)
+      }
+    }
+
+    async function loadEntries() {
+      try {
+        // Load entries
+        const loadedEntries = await db.table("cognitiveEntries").toArray()
+        setEntries(loadedEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)))
+      } catch (error) {
+        console.error("Error loading cognitive entries:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    setupDatabase()
+  }, [])
+
   // Thought patterns
   const THOUGHT_PATTERNS = {
     catastrophizing: { label: "Stormy Thoughts", color: "#4A5568" },
@@ -63,31 +104,6 @@ export default function CognitiveJournal() {
     "😑",
     "🙄",
   ]
-
-  // Load entries from database
-  useEffect(() => {
-    async function loadEntries() {
-      try {
-        // Create cognitiveEntries table if it doesn't exist
-        if (!db.tables.some((t) => t.name === "cognitiveEntries")) {
-          db.version(db.verno + 1).stores({
-            cognitiveEntries: "++id, timestamp, emotion, intensity, thoughtPattern, processingStage",
-          })
-          await db.open()
-        }
-
-        // Load entries
-        const loadedEntries = await db.table("cognitiveEntries").toArray()
-        setEntries(loadedEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)))
-      } catch (error) {
-        console.error("Error loading cognitive entries:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadEntries()
-  }, [])
 
   // Get date range for chart
   const getDateRange = () => {

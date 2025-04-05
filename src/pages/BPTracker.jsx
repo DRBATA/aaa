@@ -1,8 +1,9 @@
-// src/pages/BPTracker.jsx
-import { useState, useEffect, useRef } from "react";
-import { db } from "../db";
-import { Edit, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+"use client"
+
+import { useState, useEffect, useRef } from "react"
+import { db } from "../db"
+import { Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts"
 
 export default function BPTracker() {
   // Form state
@@ -12,93 +13,113 @@ export default function BPTracker() {
     systolic: "",
     diastolic: "",
     pulse: "",
+    mood: "",
     notes: "",
     medications: [],
-  });
+  })
 
   // BP logs state
-  const [bpLogs, setBpLogs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingId, setEditingId] = useState(null);
-  const [medications, setMedications] = useState([]);
-  const [viewType, setViewType] = useState("week");
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedReading, setSelectedReading] = useState(null);
-  const containerRef = useRef(null);
+  const [bpLogs, setBpLogs] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [editingId, setEditingId] = useState(null)
+  const [medications, setMedications] = useState([])
+  const [viewType, setViewType] = useState("week")
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [selectedReading, setSelectedReading] = useState(null)
+  const containerRef = useRef(null)
 
-  // Load BP logs and medications on component mount
+  // Ensure the bpLogs table exists
   useEffect(() => {
-    async function loadData() {
+    async function setupDatabase() {
       try {
-        // Create bpLogs table if it doesn't exist
+        // Check if bpLogs table exists
         if (!db.tables.some((t) => t.name === "bpLogs")) {
+          console.log("Creating bpLogs table")
+          // Create the table
           db.version(db.verno + 1).stores({
-            bpLogs: "++id, date, systolic, diastolic, pulse",
-          });
-          await db.open();
+            bpLogs: "++id, date, systolic, diastolic, pulse, mood, notes, medications, dateTime, timestamp",
+          })
+
+          // Open the database with the new schema
+          await db.open()
+          console.log("bpLogs table created successfully")
         }
 
-        // Load BP logs
-        const logs = await db.table("bpLogs").toArray();
-        setBpLogs(logs.sort((a, b) => new Date(b.date) - new Date(a.date)));
-
-        // Load medications from profile
-        const profile = await db.table("profile").toArray();
-        if (profile && profile.length > 0 && profile[0].medications) {
-          setMedications(profile[0].medications.filter((med) => med.trim() !== ""));
-        }
+        // Now load data
+        loadData()
       } catch (error) {
-        console.error("Error loading BP logs:", error);
-      } finally {
-        setIsLoading(false);
+        console.error("Error setting up database:", error)
+        setIsLoading(false)
       }
     }
 
-    loadData();
-  }, []);
+    async function loadData() {
+      try {
+        // Load BP logs
+        const logs = await db.table("bpLogs").toArray()
+        setBpLogs(logs.sort((a, b) => new Date(b.date) - new Date(a.date)))
+
+        // Load medications from profile
+        try {
+          const profile = await db.table("profile").toArray()
+          if (profile && profile.length > 0 && profile[0].medications) {
+            setMedications(profile[0].medications.filter((med) => med.trim() !== ""))
+          }
+        } catch (profileError) {
+          console.error("Error loading profile:", profileError)
+        }
+      } catch (error) {
+        console.error("Error loading BP logs:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    setupDatabase()
+  }, [])
 
   // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   // Handle medication checkbox changes
   const handleMedicationChange = (medication) => {
     setFormData((prev) => {
-      const newMedications = [...prev.medications];
+      const newMedications = [...prev.medications]
       if (newMedications.includes(medication)) {
-        return { ...prev, medications: newMedications.filter((med) => med !== medication) };
+        return { ...prev, medications: newMedications.filter((med) => med !== medication) }
       } else {
-        return { ...prev, medications: [...newMedications, medication] };
+        return { ...prev, medications: [...newMedications, medication] }
       }
-    });
-  };
+    })
+  }
 
   // Save BP log
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       const logData = {
         ...formData,
         dateTime: `${formData.date}T${formData.time}`,
         timestamp: new Date().toISOString(),
-      };
+      }
 
       if (editingId) {
         // Update existing log
-        await db.table("bpLogs").update(editingId, logData);
+        await db.table("bpLogs").update(editingId, logData)
         setBpLogs((prev) =>
           prev
             .map((log) => (log.id === editingId ? { ...logData, id: editingId } : log))
             .sort((a, b) => new Date(b.date) - new Date(a.date)),
-        );
-        setEditingId(null);
+        )
+        setEditingId(null)
       } else {
         // Add new log
-        const id = await db.table("bpLogs").add(logData);
-        setBpLogs((prev) => [{ ...logData, id }, ...prev]);
+        const id = await db.table("bpLogs").add(logData)
+        setBpLogs((prev) => [{ ...logData, id }, ...prev])
       }
 
       // Reset form
@@ -108,27 +129,28 @@ export default function BPTracker() {
         systolic: "",
         diastolic: "",
         pulse: "",
+        mood: "",
         notes: "",
         medications: [],
-      });
+      })
     } catch (error) {
-      console.error("Error saving BP log:", error);
-      alert("Error saving BP log: " + error.message);
+      console.error("Error saving BP log:", error)
+      alert("Error saving BP log: " + error.message)
     }
-  };
+  }
 
   // Delete BP log
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this entry?")) {
       try {
-        await db.table("bpLogs").delete(id);
-        setBpLogs((prev) => prev.filter((log) => log.id !== id));
+        await db.table("bpLogs").delete(id)
+        setBpLogs((prev) => prev.filter((log) => log.id !== id))
       } catch (error) {
-        console.error("Error deleting BP log:", error);
-        alert("Error deleting BP log: " + error.message);
+        console.error("Error deleting BP log:", error)
+        alert("Error deleting BP log: " + error.message)
       }
     }
-  };
+  }
 
   // Edit BP log
   const handleEdit = (log) => {
@@ -138,91 +160,118 @@ export default function BPTracker() {
       systolic: log.systolic,
       diastolic: log.diastolic,
       pulse: log.pulse,
+      mood: log.mood,
       notes: log.notes || "",
       medications: log.medications || [],
-    });
-    setEditingId(log.id);
+    })
+    setEditingId(log.id)
 
     // Scroll to form
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
   // Format date for display
   const formatDate = (dateString) => {
-    const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
+    const options = { weekday: "short", year: "numeric", month: "short", day: "numeric" }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+  }
+
+  // Mood options
+  const moodOptions = ["Great", "Good", "Okay", "Stressed", "Anxious", "Tired", "Sick"]
+
+  // Get emoji for mood
+  const getMoodEmoji = (mood) => {
+    switch (mood) {
+      case "Great":
+        return "😊"
+      case "Good":
+        return "🙂"
+      case "Okay":
+        return "😐"
+      case "Stressed":
+        return "😓"
+      case "Anxious":
+        return "😰"
+      case "Tired":
+        return "😴"
+      case "Sick":
+        return "🤒"
+      default:
+        return "😐"
+    }
+  }
 
   // Get BP status
   const getBPStatus = (systolic, diastolic) => {
     if (systolic <= 120 && diastolic <= 80) {
-      return { status: "normal", color: "rgba(52, 211, 153, 0.8)" };
+      return { status: "normal", color: "rgba(52, 211, 153, 0.8)" }
     } else if ((systolic > 120 && systolic <= 130) || (diastolic > 80 && diastolic <= 85)) {
-      return { status: "elevated", color: "rgba(251, 191, 36, 0.8)" };
+      return { status: "elevated", color: "rgba(251, 191, 36, 0.8)" }
     } else {
-      return { status: "high", color: "rgba(239, 68, 68, 0.8)" };
+      return { status: "high", color: "rgba(239, 68, 68, 0.8)" }
     }
-  };
+  }
 
   // Get date range for chart
   const getDateRange = () => {
-    const start = new Date(currentDate);
-    const end = new Date(currentDate);
+    const start = new Date(currentDate)
+    const end = new Date(currentDate)
 
     if (viewType === "month") {
-      start.setDate(1);
-      end.setMonth(end.getMonth() + 1, 0);
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
     } else {
-      start.setDate(start.getDate() - 7);
+      start.setDate(start.getDate() - 7)
     }
 
-    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
-  };
+    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`
+  }
 
   // Handle time shift
   const handleTimeShift = (direction) => {
-    const newDate = new Date(currentDate);
+    const newDate = new Date(currentDate)
     if (viewType === "month") {
-      newDate.setMonth(newDate.getMonth() + (direction === "forward" ? 1 : -1));
+      newDate.setMonth(newDate.getMonth() + (direction === "forward" ? 1 : -1))
     } else {
-      newDate.setDate(newDate.getDate() + (direction === "forward" ? 7 : -7));
+      newDate.setDate(newDate.getDate() + (direction === "forward" ? 7 : -7))
     }
-    setCurrentDate(newDate);
-  };
+    setCurrentDate(newDate)
+  }
 
   // Get visible data for chart
   const getVisibleData = () => {
-    const start = new Date(currentDate);
-    const end = new Date(currentDate);
+    const start = new Date(currentDate)
+    const end = new Date(currentDate)
 
     if (viewType === "month") {
-      start.setDate(1);
-      end.setMonth(end.getMonth() + 1, 0);
+      start.setDate(1)
+      end.setMonth(end.getMonth() + 1, 0)
     } else {
-      start.setDate(start.getDate() - 7);
+      start.setDate(start.getDate() - 7)
     }
 
     return bpLogs
       .filter((log) => {
-        const logDate = new Date(log.date);
-        return logDate >= start && logDate <= end;
+        const logDate = new Date(log.date)
+        return logDate >= start && logDate <= end
       })
       .map((log) => ({
         date: new Date(log.date).toLocaleDateString(),
         systolic: Number.parseInt(log.systolic),
         diastolic: Number.parseInt(log.diastolic),
         pulse: Number.parseInt(log.pulse),
+        mood: log.mood,
         id: log.id,
-      }));
-  };
+      }))
+  }
 
   // Prepare chart data
-  const chartData = getVisibleData();
+  const chartData = getVisibleData()
 
   return (
     <div className="content">
       <div className="bp-tracker-container">
-        <h1>BP Tracker</h1>
+        <h1>BP & Mood Tracker</h1>
 
         {/* Chart View */}
         <div className="welcome-section">
@@ -268,6 +317,22 @@ export default function BPTracker() {
                 <Line type="monotone" dataKey="pulse" stroke="#10b981" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
+
+            {/* Mood Emojis */}
+            {chartData.map((reading) => (
+              <div
+                key={reading.id}
+                className="absolute cursor-pointer"
+                style={{
+                  left: `${(chartData.indexOf(reading) / (chartData.length - 1 || 1)) * 100}%`,
+                  bottom: "10px",
+                  transform: "translateX(-50%)",
+                }}
+                onClick={() => setSelectedReading(bpLogs.find((log) => log.id === reading.id))}
+              >
+                <div className="text-2xl">{getMoodEmoji(reading.mood)}</div>
+              </div>
+            ))}
 
             {/* Medication Timeline */}
             <div className="absolute bottom-0 left-0 right-0 h-6 flex">
@@ -357,6 +422,22 @@ export default function BPTracker() {
           </div>
 
           <div className="form-group">
+            <label>Mood</label>
+            <div className="mood-selector">
+              {moodOptions.map((mood) => (
+                <button
+                  key={mood}
+                  type="button"
+                  className={`mood-option ${formData.mood === mood ? "selected" : ""}`}
+                  onClick={() => setFormData((prev) => ({ ...prev, mood }))}
+                >
+                  {getMoodEmoji(mood)} {mood}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
             <label>Notes</label>
             <textarea
               name="notes"
@@ -391,16 +472,17 @@ export default function BPTracker() {
               <button
                 type="button"
                 onClick={() => {
-                  setEditingId(null);
+                  setEditingId(null)
                   setFormData({
                     date: new Date().toISOString().split("T")[0],
                     time: new Date().toTimeString().slice(0, 5),
                     systolic: "",
                     diastolic: "",
                     pulse: "",
+                    mood: "",
                     notes: "",
                     medications: [],
-                  });
+                  })
                 }}
                 className="secondary-button"
               >
@@ -423,7 +505,7 @@ export default function BPTracker() {
             <p>No entries yet. Add your first BP reading above.</p>
           ) : (
             bpLogs.map((log) => {
-              const bpStatus = getBPStatus(log.systolic, log.diastolic);
+              const bpStatus = getBPStatus(log.systolic, log.diastolic)
               return (
                 <div key={log.id} className="bp-entry">
                   <div className="bp-entry-date">
@@ -448,6 +530,12 @@ export default function BPTracker() {
                     )}
                   </div>
 
+                  {log.mood && (
+                    <div className="bp-entry-mood">
+                      {getMoodEmoji(log.mood)} {log.mood}
+                    </div>
+                  )}
+
                   <div className="bp-entry-actions">
                     <button className="bp-entry-action" onClick={() => handleEdit(log)} aria-label="Edit entry">
                       <Edit size={16} />
@@ -461,7 +549,7 @@ export default function BPTracker() {
                     </button>
                   </div>
                 </div>
-              );
+              )
             })
           )}
         </div>
@@ -498,6 +586,11 @@ export default function BPTracker() {
               </div>
 
               <div>
+                <h3>Mood</h3>
+                <p className="text-2xl">
+                  {getMoodEmoji(selectedReading.mood)} {selectedReading.mood}
+                </p>
+
                 <h3 className="mt-4">Notes</h3>
                 <p>{selectedReading.notes || "No notes"}</p>
 
@@ -517,5 +610,6 @@ export default function BPTracker() {
         )}
       </div>
     </div>
-  );
+  )
 }
+
