@@ -58,7 +58,7 @@ export default function CognitiveTimelineGraph() {
                     dataKey={emoji}
                     stroke={`hsl(${(idx * 50) % 360}, 70%, 50%)`}
                     strokeWidth={2}
-                    dot={{ r: 3 }}
+                    dot={{ r: 9 }}
                   />
                 ))}
               </LineChart>

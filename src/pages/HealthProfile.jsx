@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { db } from "../db"
 import { Plus, Trash2, Calendar, Clock, Info } from "lucide-react"
 
-export default function BookNow() {
+export default function HealthProfile() {
   const [profile, setProfile] = useState({
     name: "",
     dateOfBirth: "",
